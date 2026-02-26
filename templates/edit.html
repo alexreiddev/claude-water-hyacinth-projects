@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Edit {{ contact.name }}{% endblock %}
+{% block body %}
+
+<div class="header">
+  <a href="/contact/{{ contact.id }}" class="header-back">← Back</a>
+  <span class="header-title">Edit</span>
+</div>
+
+<div class="page">
+  <form method="POST" action="/contact/{{ contact.id }}/edit">
+
+    <div class="form-group">
+      <label>Name *</label>
+      <input type="text" name="name" value="{{ contact.name }}" required>
+    </div>
+
+    <div class="form-group">
+      <label>Date met</label>
+      <input type="date" name="date_met" value="{{ contact.date_met }}">
+    </div>
+
+    <div class="form-group">
+      <label>Where / how did you meet?</label>
+      <input type="text" name="where_met" value="{{ contact.where_met or '' }}">
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="form-group">
+      <label>Profession / title</label>
+      <input type="text" name="profession" value="{{ contact.profession or '' }}">
+    </div>
+
+    <div class="form-group">
+      <label>Industry / domain</label>
+      <input type="text" name="industry" value="{{ contact.industry or '' }}">
+    </div>
+
+    <div class="form-group">
+      <label>Skills &amp; expertise</label>
+      <input type="text" name="skills" value="{{ contact.skills_str }}">
+      <p class="hint">Comma-separated</p>
+    </div>
+
+    <div class="form-group">
+      <label>Interests &amp; passions</label>
+      <input type="text" name="interests" value="{{ contact.interests_str }}">
+      <p class="hint">Comma-separated</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="form-group">
+      <label>Resources &amp; assets</label>
+      <input type="text" name="resources" value="{{ contact.resources_str }}">
+      <p class="hint">Comma-separated</p>
+    </div>
+
+    <div class="form-group">
+      <label>Problems they mentioned</label>
+      <input type="text" name="problems" value="{{ contact.problems_str }}">
+      <p class="hint">Comma-separated</p>
+    </div>
+
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea name="notes">{{ contact.notes or '' }}</textarea>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Save Changes</button>
+
+  </form>
+</div>
+
+{% endblock %}

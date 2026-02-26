@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}{{ contact.name }}{% endblock %}
+{% block body %}
+
+<div class="header">
+  <a href="/" class="header-back">← Back</a>
+  <span class="header-title">{{ contact.name }}</span>
+  <a href="/contact/{{ contact.id }}/edit" class="header-action">Edit</a>
+</div>
+
+<div class="page">
+
+  {% for msg in get_flashed_messages(category_filter=["success"]) %}
+    <div class="flash flash-success">{{ msg }}</div>
+  {% endfor %}
+
+  <!-- Contact details -->
+  <div class="card" style="margin-bottom:16px;">
+    {% if contact.profession or contact.industry %}
+      <div class="detail-row">
+        <span class="detail-label">Role</span>
+        <span class="detail-value">{{ contact.profession }}{% if contact.profession and contact.industry %} · {% endif %}{{ contact.industry }}</span>
+      </div>
+    {% endif %}
+    {% if contact.where_met %}
+      <div class="detail-row">
+        <span class="detail-label">Met at</span>
+        <span class="detail-value">{{ contact.where_met }} <span style="color:var(--muted)">· {{ contact.date_met }}</span></span>
+      </div>
+    {% else %}
+      <div class="detail-row">
+        <span class="detail-label">Date met</span>
+        <span class="detail-value">{{ contact.date_met }}</span>
+      </div>
+    {% endif %}
+    {% if contact.skills %}
+      <div class="detail-row">
+        <span class="detail-label">Skills</span>
+        <div class="tags">{% for s in contact.skills %}<span class="tag">{{ s }}</span>{% endfor %}</div>
+      </div>
+    {% endif %}
+    {% if contact.interests %}
+      <div class="detail-row">
+        <span class="detail-label">Interests</span>
+        <div class="tags">{% for i in contact.interests %}<span class="tag tag-rose">{{ i }}</span>{% endfor %}</div>
+      </div>
+    {% endif %}
+    {% if contact.resources %}
+      <div class="detail-row">
+        <span class="detail-label">Resources</span>
+        <span class="detail-value">{{ contact.resources | join(", ") }}</span>
+      </div>
+    {% endif %}
+    {% if contact.problems %}
+      <div class="detail-row">
+        <span class="detail-label">Problems</span>
+        <span class="detail-value">{{ contact.problems | join(", ") }}</span>
+      </div>
+    {% endif %}
+    {% if contact.notes %}
+      <div class="detail-row">
+        <span class="detail-label">Notes</span>
+        <span class="detail-value" style="white-space:pre-wrap;">{{ contact.notes }}</span>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Analyze button -->
+  <a href="/contact/{{ contact.id }}/analyze" class="btn btn-primary" style="margin-bottom:8px;">
+    ✦ Analyze with Claude
+  </a>
+
+  <!-- Past analyses -->
+  {% if analyses %}
+    <p class="section-heading">{{ analyses|length }} past analysis{% if analyses|length != 1 %}es{% endif %}</p>
+    {% for a in analyses %}
+      <div class="card" style="margin-bottom:12px;">
+        <p style="font-size:0.72rem;color:var(--muted);margin-bottom:10px;">{{ a.created_at[:10] }}{% if a.context %} · {{ a.context }}{% endif %}</p>
+        <div class="analysis-box" id="analysis-static-{{ loop.index }}">{{ a.analysis }}</div>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="divider"></div>
+
+  <!-- Delete -->
+  <form method="POST" action="/contact/{{ contact.id }}/delete" onsubmit="return confirm('Delete {{ contact.name }}?')">
+    <button class="btn btn-danger btn-sm" type="submit">Delete contact</button>
+  </form>
+
+</div>
+
+<nav class="bottom-nav">
+  <a href="/" class="nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+    Contacts
+  </a>
+  <a href="/add" class="nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+    Add
+  </a>
+  <a href="/contact/{{ contact.id }}/analyze" class="nav-item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg>
+    Analyze
+  </a>
+</nav>
+
+<script>
+// Simple markdown-to-html for analysis boxes
+document.querySelectorAll('.analysis-box').forEach(el => {
+  let html = el.textContent
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^#{1,2} (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^#{3} (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^[-*] (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+  el.innerHTML = html;
+});
+</script>
+
+{% endblock %}

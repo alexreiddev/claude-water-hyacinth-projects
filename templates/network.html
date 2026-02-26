@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Network Analysis{% endblock %}
+{% block body %}
+
+<div class="header">
+  <a href="/" class="header-back">← Back</a>
+  <span class="header-title">Network</span>
+</div>
+
+<div class="page">
+
+  <div class="card" style="margin-bottom:16px;">
+    <p style="font-size:0.85rem;color:var(--muted);">{{ count }} contact{{ 's' if count != 1 }} in your network</p>
+    {% if count > 0 %}
+      <div class="tags" style="margin-top:8px;">
+        {% for c in contacts[:8] %}
+          <span class="tag">{{ c.name }}</span>
+        {% endfor %}
+        {% if count > 8 %}<span class="tag" style="opacity:0.5">+{{ count - 8 }} more</span>{% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  {% if count == 0 %}
+    <div class="empty">
+      <div class="empty-icon">🕸️</div>
+      <p>Add some contacts first, then come back here to see patterns across your whole network.</p>
+    </div>
+  {% else %}
+
+    <div class="form-group">
+      <label for="goal">What's your current goal?</label>
+      <input type="text" id="goal" placeholder="e.g. raise a seed round, find a technical co-founder, launch a product"
+             value="{{ goal }}">
+      <p class="hint">Helps Claude focus the network analysis</p>
+    </div>
+
+    <button class="btn btn-primary" id="startBtn" onclick="startAnalysis()">
+      ✦ Analyze Network
+    </button>
+
+    <div id="status" style="display:none;text-align:center;padding:24px 0;color:var(--muted);font-size:0.9rem;">
+      <div class="spinner" style="margin:0 auto 10px;"></div>
+      Mapping your network…
+    </div>
+
+    <div id="resultCard" style="display:none;margin-top:16px;">
+      <p class="section-heading">Network Intelligence</p>
+      <div class="card">
+        <div class="analysis-box" id="resultBox"></div>
+      </div>
+    </div>
+
+    <div id="errorBox" style="display:none;" class="flash flash-error"></div>
+
+  {% endif %}
+
+</div>
+
+<nav class="bottom-nav">
+  <a href="/" class="nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+    Contacts
+  </a>
+  <a href="/add" class="nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+    Add
+  </a>
+  <a href="/network" class="nav-item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+    Network
+  </a>
+</nav>
+
+<script>
+function startAnalysis() {
+  const goal = document.getElementById('goal').value;
+  document.getElementById('startBtn').style.display = 'none';
+  document.getElementById('status').style.display = 'block';
+  document.getElementById('errorBox').style.display = 'none';
+
+  const url = `/network/analyze/stream?goal=${encodeURIComponent(goal)}`;
+  const source = new EventSource(url);
+  let fullText = '';
+
+  source.onmessage = (e) => {
+    if (e.data === '[DONE]') {
+      source.close();
+      document.getElementById('status').style.display = 'none';
+      document.getElementById('resultCard').style.display = 'block';
+      renderMarkdown(document.getElementById('resultBox'), fullText);
+      return;
+    }
+    if (e.data.startsWith('ERROR:')) {
+      source.close();
+      document.getElementById('status').style.display = 'none';
+      document.getElementById('startBtn').style.display = 'block';
+      const err = document.getElementById('errorBox');
+      err.textContent = e.data.replace('ERROR:', '').trim();
+      err.style.display = 'block';
+      return;
+    }
+    fullText += e.data.replace(/\\n/g, '\n');
+  };
+
+  source.onerror = () => {
+    source.close();
+    document.getElementById('status').style.display = 'none';
+    document.getElementById('startBtn').style.display = 'block';
+    const err = document.getElementById('errorBox');
+    err.textContent = 'Connection error. Check your API key in .env and retry.';
+    err.style.display = 'block';
+  };
+}
+
+function renderMarkdown(el, text) {
+  let html = text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^#{1,2} (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^#{3} (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^[-*] (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+  el.innerHTML = html;
+}
+</script>
+
+{% endblock %}

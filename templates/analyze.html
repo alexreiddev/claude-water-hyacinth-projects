@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Analyzing {{ contact.name }}{% endblock %}
+{% block body %}
+
+<div class="header">
+  <a href="/contact/{{ contact.id }}" class="header-back">← Back</a>
+  <span class="header-title">{{ contact.name }}</span>
+</div>
+
+<div class="page">
+
+  <!-- Optional context field -->
+  <div class="form-group" style="margin-bottom:16px;">
+    <label for="ctx">Focus / goal for this analysis</label>
+    <input type="text" id="ctx" placeholder="e.g. I'm fundraising, launching a SaaS, looking for a co-founder"
+           value="{{ extra_context }}">
+    <p class="hint">Optional — helps Claude tailor the output</p>
+  </div>
+
+  <button class="btn btn-primary" id="startBtn" onclick="startAnalysis()">
+    ✦ Start Analysis
+  </button>
+
+  <div id="status" style="display:none;text-align:center;padding:24px 0;color:var(--muted);font-size:0.9rem;">
+    <div class="spinner" style="margin:0 auto 10px;"></div>
+    Thinking…
+  </div>
+
+  <div id="resultCard" style="display:none;margin-top:16px;">
+    <p class="section-heading">Opportunity Map</p>
+    <div class="card">
+      <div class="analysis-box" id="resultBox"></div>
+    </div>
+    <a href="/contact/{{ contact.id }}" class="btn btn-secondary" style="margin-top:12px;">
+      ← Back to contact
+    </a>
+  </div>
+
+  <div id="errorBox" style="display:none;" class="flash flash-error"></div>
+
+</div>
+
+<script>
+const contactId = {{ contact.id }};
+
+function startAnalysis() {
+  const ctx = document.getElementById('ctx').value;
+  document.getElementById('startBtn').style.display = 'none';
+  document.getElementById('status').style.display = 'block';
+  document.getElementById('errorBox').style.display = 'none';
+
+  const url = `/contact/${contactId}/analyze/stream?context=${encodeURIComponent(ctx)}`;
+  const source = new EventSource(url);
+  let fullText = '';
+
+  source.onmessage = (e) => {
+    if (e.data === '[DONE]') {
+      source.close();
+      document.getElementById('status').style.display = 'none';
+      document.getElementById('resultCard').style.display = 'block';
+      renderMarkdown(document.getElementById('resultBox'), fullText);
+      return;
+    }
+    if (e.data.startsWith('ERROR:')) {
+      source.close();
+      document.getElementById('status').style.display = 'none';
+      document.getElementById('startBtn').style.display = 'block';
+      const err = document.getElementById('errorBox');
+      err.textContent = e.data.replace('ERROR:', '').trim();
+      err.style.display = 'block';
+      return;
+    }
+    fullText += e.data.replace(/\\n/g, '\n');
+  };
+
+  source.onerror = () => {
+    source.close();
+    document.getElementById('status').style.display = 'none';
+    document.getElementById('startBtn').style.display = 'block';
+    const err = document.getElementById('errorBox');
+    err.textContent = 'Connection error. Check your API key in .env and retry.';
+    err.style.display = 'block';
+  };
+}
+
+function renderMarkdown(el, text) {
+  let html = text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^#{1,2} (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^#{3} (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^[-*] (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+  el.innerHTML = html;
+}
+</script>
+
+{% endblock %}

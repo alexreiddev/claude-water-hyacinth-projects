@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Directory{% endblock %}
+{% block body %}
+
+<div class="header">
+  <span class="header-title">📇 Directory</span>
+  <a href="/network" class="header-action">Network ↗</a>
+</div>
+
+<div class="page">
+
+  {% for msg in get_flashed_messages(category_filter=["success"]) %}
+    <div class="flash flash-success">{{ msg }}</div>
+  {% endfor %}
+  {% for msg in get_flashed_messages(category_filter=["error"]) %}
+    <div class="flash flash-error">{{ msg }}</div>
+  {% endfor %}
+
+  <form action="/" method="GET">
+    <div class="search-bar">
+      <span class="search-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+      </span>
+      <input type="text" name="q" value="{{ search }}" placeholder="Search contacts…" autocomplete="off">
+    </div>
+  </form>
+
+  {% if contacts %}
+    <p class="section-heading">{{ contacts|length }} contact{{ 's' if contacts|length != 1 }}</p>
+    {% for c in contacts %}
+      <a href="/contact/{{ c.id }}" class="card-link">
+        <div class="card">
+          <div class="contact-name">{{ c.name }}</div>
+          <div class="contact-meta">
+            {% if c.profession %}<span>{{ c.profession }}</span>{% endif %}
+            {% if c.industry %}<span>· {{ c.industry }}</span>{% endif %}
+            <span style="color:var(--muted)">{{ c.date_met }}</span>
+          </div>
+          {% if c.skills %}
+            <div class="tags" style="margin-top:8px;">
+              {% for s in c.skills[:4] %}
+                <span class="tag">{{ s }}</span>
+              {% endfor %}
+              {% if c.skills|length > 4 %}
+                <span class="tag" style="opacity:0.6">+{{ c.skills|length - 4 }}</span>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </a>
+    {% endfor %}
+
+  {% else %}
+    <div class="empty">
+      <div class="empty-icon">👋</div>
+      <p>{% if search %}No contacts match "{{ search }}"{% else %}No contacts yet.<br>Tap <strong>+</strong> to log your first.{% endif %}</p>
+    </div>
+  {% endif %}
+
+</div>
+
+<a href="/add" class="fab" aria-label="Add contact">+</a>
+
+<nav class="bottom-nav">
+  <a href="/" class="nav-item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Contacts
+  </a>
+  <a href="/add" class="nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+    Add
+  </a>
+  <a href="/network" class="nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+    Network
+  </a>
+</nav>
+
+{% endblock %}
