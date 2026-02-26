@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Card icon -->
+    <path
+        android:fillColor="#7c6eff"
+        android:pathData="M30,28 Q28,28 28,30 L28,78 Q28,80 30,80 L78,80 Q80,80 80,78 L80,30 Q80,28 78,28 Z"/>
+    <path
+        android:fillColor="#ffffff"
+        android:pathData="M38,44 L70,44 Q71,44 71,45 L71,47 Q71,48 70,48 L38,48 Q37,48 37,47 L37,45 Q37,44 38,44 Z"/>
+    <path
+        android:fillColor="#ffffff"
+        android:pathData="M38,54 L62,54 Q63,54 63,55 L63,57 Q63,58 62,58 L38,58 Q37,58 37,57 L37,55 Q37,54 38,54 Z"/>
+    <path
+        android:fillColor="#ffffff"
+        android:pathData="M38,64 L56,64 Q57,64 57,65 L57,67 Q57,68 56,68 L38,68 Q37,68 37,67 L37,65 Q37,64 38,64 Z"/>
+</vector>

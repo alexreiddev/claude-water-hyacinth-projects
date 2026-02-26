@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f0f13">
+<title>Directory</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0f13;--surface:#1a1a22;--border:#2a2a36;
+  --accent:#7c6eff;--accent2:#ff6eb4;
+  --text:#e8e8f0;--muted:#888899;
+  --ok:#4ade80;--err:#f87171;--radius:14px;
+  --safe-t:env(safe-area-inset-top,0px);
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+html{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:16px;-webkit-text-size-adjust:100%}
+body{min-height:100dvh;display:flex;flex-direction:column}
+a{color:inherit;text-decoration:none;-webkit-tap-highlight-color:transparent}
+
+/* header */
+.hdr{position:sticky;top:0;z-index:100;background:rgba(15,15,19,.92);backdrop-filter:blur(12px);
+  padding:calc(var(--safe-t) + 12px) 16px 12px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px}
+.hdr-title{font-size:1.1rem;font-weight:700;flex:1}
+.hdr-back{color:var(--accent);font-size:1rem}
+.hdr-action{color:var(--accent);font-size:.9rem}
+
+/* page */
+.page{flex:1;padding:16px 16px calc(var(--safe-b) + 80px);max-width:600px;margin:0 auto;width:100%}
+
+/* bottom nav */
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:rgba(15,15,19,.95);backdrop-filter:blur(12px);
+  border-top:1px solid var(--border);
+  padding:8px 0 calc(var(--safe-b) + 4px);
+  display:flex;justify-content:space-around}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;
+  color:var(--muted);font-size:.7rem;padding:4px 16px;cursor:pointer}
+.nav-item.active{color:var(--accent)}
+.nav-item svg{width:22px;height:22px}
+
+/* cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px}
+.clink{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.clink:active .card{background:#222230}
+
+/* contact card */
+.cname{font-size:1rem;font-weight:600;margin-bottom:2px}
+.cmeta{font-size:.8rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px}
+.tag{background:rgba(124,110,255,.15);color:var(--accent);border-radius:20px;padding:2px 8px;font-size:.72rem;white-space:nowrap}
+.tag2{background:rgba(255,110,180,.15);color:var(--accent2)}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+
+/* forms */
+.fg{margin-bottom:16px}
+label{display:block;font-size:.82rem;color:var(--muted);margin-bottom:6px;font-weight:500}
+input[type=text],input[type=date],input[type=password],textarea{
+  width:100%;background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:12px 14px;color:var(--text);font-size:1rem;
+  font-family:inherit;outline:none;-webkit-appearance:none;appearance:none}
+input:focus,textarea:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:80px}
+.hint{font-size:.72rem;color:var(--muted);margin-top:4px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  border:none;border-radius:12px;padding:14px 20px;font-size:1rem;font-weight:600;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;width:100%;transition:opacity .15s}
+.btn:active{opacity:.75}
+.btn-p{background:var(--accent);color:#fff}
+.btn-s{background:var(--surface);color:var(--text);border:1px solid var(--border)}
+.btn-d{background:rgba(248,113,113,.15);color:var(--err);border:1px solid rgba(248,113,113,.3)}
+.btn-sm{padding:8px 14px;font-size:.85rem;width:auto;border-radius:8px}
+
+/* fab */
+.fab{position:fixed;bottom:calc(var(--safe-b) + 70px);right:16px;width:56px;height:56px;
+  border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;
+  justify-content:center;font-size:1.6rem;box-shadow:0 4px 20px rgba(124,110,255,.4);
+  z-index:99;cursor:pointer;border:none;-webkit-tap-highlight-color:transparent}
+
+/* flash */
+.flash{border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:.9rem}
+.flash-ok{background:rgba(74,222,128,.12);color:var(--ok)}
+.flash-err{background:rgba(248,113,113,.12);color:var(--err)}
+
+/* detail */
+.drow{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1px solid var(--border)}
+.drow:last-child{border-bottom:none}
+.dlbl{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.dval{font-size:.95rem}
+
+/* analysis */
+.abox{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px;white-space:pre-wrap;font-size:.88rem;line-height:1.65;overflow-wrap:break-word}
+.abox h2{font-size:.95rem;color:var(--accent);margin:14px 0 6px}
+.abox h3{font-size:.9rem;color:var(--accent2);margin:12px 0 4px}
+.abox strong{color:var(--accent)}
+.abox ul{padding-left:18px;margin:4px 0}
+
+/* search */
+.sbar{position:relative;margin-bottom:16px}
+.sbar input{padding-left:40px}
+.sicon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+
+/* misc */
+.empty{text-align:center;padding:48px 16px;color:var(--muted)}
+.empty-icon{font-size:3rem;margin-bottom:12px}
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);
+  border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sh{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:20px 0 8px}
+.divider{height:1px;background:var(--border);margin:16px 0}
+.cbrow{display:flex;align-items:center;gap:10px}
+input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);cursor:pointer}
+.cbrow label{margin:0;font-size:.9rem;color:var(--text);cursor:pointer}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════
+const MODEL = 'claude-sonnet-4-6';
+
+// ═══════════════════════════════════════════════════════
+// DB  (localStorage)
+// ═══════════════════════════════════════════════════════
+const DB = {
+  _get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},
+  _set(k,v){localStorage.setItem(k,JSON.stringify(v))},
+
+  getSettings(){return this._get('pd_settings',{apiKey:'',myName:'',mySkills:'',myIndustry:'',myProjects:''})},
+  saveSettings(s){this._set('pd_settings',s)},
+
+  getContacts(){return this._get('pd_contacts',[])},
+  _saveContacts(arr){this._set('pd_contacts',arr)},
+
+  addContact(data){
+    const cs=this.getContacts();
+    const c={...data,id:Date.now(),created_at:new Date().toISOString()};
+    cs.unshift(c); this._saveContacts(cs); return c.id;
+  },
+  getContact(id){return this.getContacts().find(c=>c.id===id)||null},
+  updateContact(id,data){
+    const cs=this.getContacts().map(c=>c.id===id?{...c,...data}:c);
+    this._saveContacts(cs);
+  },
+  deleteContact(id){
+    this._saveContacts(this.getContacts().filter(c=>c.id!==id));
+    localStorage.removeItem('pd_an_'+id);
+  },
+
+  getAnalyses(id){return this._get('pd_an_'+id,[])},
+  addAnalysis(id,text,context){
+    const an=this.getAnalyses(id);
+    an.unshift({text,context,created_at:new Date().toISOString()});
+    this._set('pd_an_'+id,an);
+  },
+};
+
+// ═══════════════════════════════════════════════════════
+// API  (Anthropic streaming)
+// ═══════════════════════════════════════════════════════
+async function streamClaude(prompt,apiKey,onChunk,onDone,onError){
+  if(!apiKey){onError('No API key. Go to Settings and enter your Anthropic API key.');return;}
+  let resp;
+  try{
+    resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+      },
+      body:JSON.stringify({
+        model:MODEL,max_tokens:1500,stream:true,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+  }catch(e){onError('Network error: '+e.message);return;}
+
+  if(!resp.ok){
+    try{const j=await resp.json();onError(j.error?.message||'API error '+resp.status);}
+    catch{onError('API error '+resp.status);}
+    return;
+  }
+
+  const reader=resp.body.getReader(),dec=new TextDecoder();
+  let buf='';
+  try{
+    while(true){
+      const{done,value}=await reader.read();
+      if(done)break;
+      buf+=dec.decode(value,{stream:true});
+      const lines=buf.split('\n');
+      buf=lines.pop();
+      for(const line of lines){
+        if(!line.startsWith('data: '))continue;
+        const raw=line.slice(6).trim();
+        if(raw==='[DONE]'){onDone();return;}
+        try{
+          const ev=JSON.parse(raw);
+          if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta')
+            onChunk(ev.delta.text);
+        }catch{}
+      }
+    }
+    onDone();
+  }catch(e){onError('Stream error: '+e.message);}
+}
+
+// ═══════════════════════════════════════════════════════
+// PROMPTS  (ported from claude_client.py)
+// ═══════════════════════════════════════════════════════
+function myProfileText(s){
+  const parts=[];
+  if(s.myName)    parts.push('Name: '+s.myName);
+  if(s.mySkills)  parts.push('Skills: '+s.mySkills);
+  if(s.myIndustry)parts.push('Industry: '+s.myIndustry);
+  if(s.myProjects)parts.push('Current projects: '+s.myProjects);
+  return parts.length?parts.join('\n'):'Not specified';
+}
+
+function contactText(c){
+  const ls=['Name: '+c.name,'Date met: '+c.date_met];
+  if(c.where_met)  ls.push('Where met: '+c.where_met);
+  if(c.profession) ls.push('Profession: '+c.profession);
+  if(c.industry)   ls.push('Industry: '+c.industry);
+  if(c.skills?.length)    ls.push('Skills: '+c.skills.join(', '));
+  if(c.interests?.length) ls.push('Interests: '+c.interests.join(', '));
+  if(c.resources?.length) ls.push('Resources/assets: '+c.resources.join(', '));
+  if(c.problems?.length)  ls.push('Problems/pain points: '+c.problems.join(', '));
+  if(c.notes)      ls.push('Notes: '+c.notes);
+  return ls.join('\n');
+}
+
+function contactPrompt(c,s,extra){
+  return `You are an entrepreneurial opportunity mapper. Given information about someone I recently met and my own profile, identify concrete ways we could collaborate, create value together, or help each other.
+
+MY PROFILE:
+${myProfileText(s)}
+
+PERSON I MET:
+${contactText(c)}${extra?'\nAdditional context: '+extra:''}
+
+Provide a structured analysis covering:
+
+1. **Entrepreneurial Opportunities** — Specific business ideas or ventures we could build together, referencing their skills/resources and mine.
+
+2. **Immediate Ways to Help Each Other** — Quick wins: introductions, advice, resources, or collaborations that could happen within the next 30 days.
+
+3. **Their Problems I Could Solve** — Based on the pain points they mentioned, how could I (or something I'm building) address them?
+
+4. **Skills/Resources I Should Leverage** — What they bring that would be uniquely valuable to me.
+
+5. **Suggested Follow-Up** — Specific, actionable next steps with this person (what to say, what to propose, what to ask).
+
+6. **Longer-Term Potential** — Bigger picture: strategic partnerships, investor angles, talent, or market access they could represent.
+
+Be specific and practical. Avoid generic advice. If information is limited, flag what data would sharpen the analysis.`;
+}
+
+function networkPrompt(contacts,s,goal){
+  const sums=contacts.map(c=>
+    `- ${c.name} (${c.profession||'unknown'}): skills=${JSON.stringify(c.skills||[])}, industry=${c.industry||''}`
+  ).join('\n');
+  return `You are an entrepreneurial network analyst. Review this person's contact network and surface patterns, synergies, and hidden opportunities.
+
+MY PROFILE:
+${myProfileText(s)}${goal?'\nMy current goal: '+goal:''}
+
+MY NETWORK (${contacts.length} contacts):
+${sums}
+
+Provide:
+
+1. **Cross-Connection Opportunities** — Pairs or groups of contacts who should meet each other (and why).
+
+2. **Emerging Themes** — Patterns in skills, industries, or problems that suggest a market opportunity.
+
+3. **Team Assembly** — If I wanted to start something new, which contacts form the best founding team or advisory board?
+
+4. **Network Gaps** — What types of people am I missing that would accelerate my goals?
+
+5. **Top 3 Highest-Leverage Actions** — The single best moves I can make with this network right now.
+
+Be specific and reference contacts by name.`;
+}
+
+// ═══════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function toList(s){return s.split(',').map(x=>x.trim()).filter(Boolean);}
+function fromList(a){return Array.isArray(a)?a.join(', '):'';}
+function today(){return new Date().toISOString().slice(0,10);}
+
+function md(text){
+  return esc(text)
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/^#{1,2} (.+)$/gm,'<h2>$1</h2>')
+    .replace(/^#{3} (.+)$/gm,'<h3>$1</h3>')
+    .replace(/^[-*] (.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/gs,'<ul>$&</ul>');
+}
+
+function navHTML(active){
+  const items=[
+    {route:'/',icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,label:'Contacts'},
+    {route:'/add',icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,label:'Add'},
+    {route:'/network',icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>`,label:'Network'},
+    {route:'/settings',icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>`,label:'Settings'},
+  ];
+  return `<nav class="bnav">${items.map(i=>`
+    <div class="nav-item${active===i.route?' active':''}" onclick="go('${i.route}')">${i.icon}${i.label}</div>`).join('')}
+  </nav>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// VIEWS
+// ═══════════════════════════════════════════════════════
+
+function renderHome(search=''){
+  let contacts=DB.getContacts();
+  if(search){
+    const q=search.toLowerCase();
+    contacts=contacts.filter(c=>
+      c.name.toLowerCase().includes(q)||
+      (c.profession||'').toLowerCase().includes(q)||
+      (c.industry||'').toLowerCase().includes(q)||
+      (c.skills||[]).some(s=>s.toLowerCase().includes(q))
+    );
+  }
+
+  const list=contacts.length?contacts.map(c=>`
+    <div class="clink" onclick="go('/contact/${c.id}')">
+      <div class="card">
+        <div class="cname">${esc(c.name)}</div>
+        <div class="cmeta">
+          ${c.profession?`<span>${esc(c.profession)}</span>`:''}
+          ${c.industry?`<span>· ${esc(c.industry)}</span>`:''}
+          <span style="color:var(--muted)">${esc(c.date_met||'')}</span>
+        </div>
+        ${(c.skills||[]).length?`<div class="tags">${c.skills.slice(0,4).map(s=>`<span class="tag">${esc(s)}</span>`).join('')}${c.skills.length>4?`<span class="tag" style="opacity:.6">+${c.skills.length-4}</span>`:''}</div>`:''}
+      </div>
+    </div>`).join('')
+    :`<div class="empty"><div class="empty-icon">👋</div><p>${search?`No results for "${esc(search)}"`:'No contacts yet.<br>Tap <strong>+</strong> to log your first.'}</p></div>`;
+
+  document.getElementById('app').innerHTML=`
+    <div class="hdr">
+      <span class="hdr-title">📇 Directory</span>
+      <span class="hdr-action" onclick="go('/network')" style="cursor:pointer">Network ↗</span>
+    </div>
+    <div class="page">
+      <div class="sbar">
+        <span class="sicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+        <input type="text" id="sq" placeholder="Search contacts…" value="${esc(search)}" autocomplete="off">
+      </div>
+      ${contacts.length?`<p class="sh">${contacts.length} contact${contacts.length!==1?'s':''}</p>`:''}
+      ${list}
+    </div>
+    <button class="fab" onclick="go('/add')">+</button>
+    ${navHTML('/')}`;
+
+  document.getElementById('sq').addEventListener('input',e=>{
+    clearTimeout(window._st);
+    window._st=setTimeout(()=>renderHome(e.target.value),250);
+  });
+}
+
+function renderAdd(){
+  document.getElementById('app').innerHTML=`
+    <div class="hdr">
+      <span class="hdr-back" onclick="go('/')" style="cursor:pointer">← Back</span>
+      <span class="hdr-title">New Contact</span>
+    </div>
+    <div class="page">
+      <form id="addForm">
+        <div class="fg"><label>Name *</label>
+          <input type="text" name="name" required placeholder="Full name" autofocus autocomplete="name"></div>
+        <div class="fg"><label>Date met</label>
+          <input type="date" name="date_met" value="${today()}"></div>
+        <div class="fg"><label>Where / how did you meet?</label>
+          <input type="text" name="where_met" placeholder="e.g. conference, gym, coffee shop"></div>
+        <div class="divider"></div>
+        <div class="fg"><label>Profession / title</label>
+          <input type="text" name="profession" placeholder="e.g. VC partner, founder, designer"></div>
+        <div class="fg"><label>Industry / domain</label>
+          <input type="text" name="industry" placeholder="e.g. fintech, climate, e-commerce"></div>
+        <div class="fg"><label>Skills &amp; expertise</label>
+          <input type="text" name="skills" placeholder="Python, fundraising, marketing" autocomplete="off">
+          <p class="hint">Comma-separated</p></div>
+        <div class="fg"><label>Interests &amp; passions</label>
+          <input type="text" name="interests" placeholder="climate tech, travel, music" autocomplete="off">
+          <p class="hint">Comma-separated</p></div>
+        <div class="divider"></div>
+        <div class="fg"><label>Resources &amp; assets</label>
+          <input type="text" name="resources" placeholder="VC network, factory, $500k ARR biz" autocomplete="off">
+          <p class="hint">What they have access to — comma-separated</p></div>
+        <div class="fg"><label>Problems they mentioned</label>
+          <input type="text" name="problems" placeholder="can't find engineers, cash flow issues" autocomplete="off">
+          <p class="hint">Pain points — comma-separated</p></div>
+        <div class="fg"><label>Notes</label>
+          <textarea name="notes" placeholder="Anything else worth remembering…"></textarea></div>
+        <div class="fg">
+          <div class="cbrow">
+            <input type="checkbox" id="autoA" name="auto_analyze" checked>
+            <label for="autoA">Analyze with Claude after saving</label>
+          </div>
+        </div>
+        <button class="btn btn-p" type="submit">Save Contact</button>
+      </form>
+    </div>`;
+
+  document.getElementById('addForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const f=e.target;
+    const id=DB.addContact({
+      name:f.name.value.trim(),
+      date_met:f.date_met.value,
+      where_met:f.where_met.value.trim(),
+      profession:f.profession.value.trim(),
+      industry:f.industry.value.trim(),
+      skills:toList(f.skills.value),
+      interests:toList(f.interests.value),
+      resources:toList(f.resources.value),
+      problems:toList(f.problems.value),
+      notes:f.notes.value.trim(),
+    });
+    if(f.auto_analyze.checked) go('/analyze/'+id);
+    else go('/contact/'+id);
+  });
+}
+
+function renderView(id){
+  const c=DB.getContact(id);
+  if(!c){go('/');return;}
+  const analyses=DB.getAnalyses(id);
+
+  const row=(lbl,val)=>val?`<div class="drow"><span class="dlbl">${lbl}</span><span class="dval">${val}</span></div>`:'';
+  const tagsHTML=(arr,cls='')=>arr&&arr.length?`<div class="tags">${arr.map(s=>`<span class="tag ${cls}">${esc(s)}</span>`).join('')}</div>`:'';
+  const tagRow=(lbl,arr,cls='')=>arr&&arr.length?`<div class="drow"><span class="dlbl">${lbl}</span>${tagsHTML(arr,cls)}</div>`:'';
+
+  const pastAn=analyses.length?`
+    <p class="sh">${analyses.length} past analysis${analyses.length!==1?'es':''}</p>
+    ${analyses.map((a,i)=>`
+      <div class="card" style="margin-bottom:12px">
+        <p style="font-size:.72rem;color:var(--muted);margin-bottom:10px">${esc(a.created_at.slice(0,10))}${a.context?' · '+esc(a.context):''}</p>
+        <div class="abox" id="an${i}"></div>
+      </div>`).join('')}`:'';
+
+  document.getElementById('app').innerHTML=`
+    <div class="hdr">
+      <span class="hdr-back" onclick="go('/')" style="cursor:pointer">← Back</span>
+      <span class="hdr-title">${esc(c.name)}</span>
+      <span class="hdr-action" onclick="go('/edit/${c.id}')" style="cursor:pointer">Edit</span>
+    </div>
+    <div class="page">
+      <div class="card" style="margin-bottom:16px">
+        ${row('Role',[c.profession,c.industry].filter(Boolean).join(' · '))}
+        ${row('Met at',c.where_met?(c.where_met+(c.date_met?' · '+c.date_met:'')):c.date_met)}
+        ${tagRow('Skills',c.skills)}
+        ${tagRow('Interests',c.interests,'tag2')}
+        ${row('Resources',(c.resources||[]).join(', '))}
+        ${row('Problems',(c.problems||[]).join(', '))}
+        ${c.notes?`<div class="drow"><span class="dlbl">Notes</span><span class="dval" style="white-space:pre-wrap">${esc(c.notes)}</span></div>`:''}
+      </div>
+      <div class="btn btn-p" onclick="go('/analyze/${c.id}')" style="margin-bottom:8px;cursor:pointer">✦ Analyze with Claude</div>
+      ${pastAn}
+      <div class="divider"></div>
+      <button class="btn btn-d btn-sm" id="delBtn">Delete contact</button>
+    </div>
+    ${navHTML('')}`;
+
+  analyses.forEach((a,i)=>{
+    const el=document.getElementById('an'+i);
+    if(el) el.innerHTML=md(a.text);
+  });
+  document.getElementById('delBtn').addEventListener('click',()=>{
+    if(confirm('Delete '+c.name+'?')){DB.deleteContact(id);go('/');}
+  });
+}
+
+function renderEdit(id){
+  const c=DB.getContact(id);
+  if(!c){go('/');return;}
+
+  document.getElementById('app').innerHTML=`
+    <div class="hdr">
+      <span class="hdr-back" onclick="go('/contact/${c.id}')" style="cursor:pointer">← Back</span>
+      <span class="hdr-title">Edit</span>
+    </div>
+    <div class="page">
+      <form id="editForm">
+        <div class="fg"><label>Name *</label>
+          <input type="text" name="name" required value="${esc(c.name)}"></div>
+        <div class="fg"><label>Date met</label>
+          <input type="date" name="date_met" value="${esc(c.date_met||'')}"></div>
+        <div class="fg"><label>Where / how did you meet?</label>
+          <input type="text" name="where_met" value="${esc(c.where_met||'')}"></div>
+        <div class="divider"></div>
+        <div class="fg"><label>Profession / title</label>
+          <input type="text" name="profession" value="${esc(c.profession||'')}"></div>
+        <div class="fg"><label>Industry / domain</label>
+          <input type="text" name="industry" value="${esc(c.industry||'')}"></div>
+        <div class="fg"><label>Skills &amp; expertise</label>
+          <input type="text" name="skills" value="${esc(fromList(c.skills))}">
+          <p class="hint">Comma-separated</p></div>
+        <div class="fg"><label>Interests &amp; passions</label>
+          <input type="text" name="interests" value="${esc(fromList(c.interests))}">
+          <p class="hint">Comma-separated</p></div>
+        <div class="divider"></div>
+        <div class="fg"><label>Resources &amp; assets</label>
+          <input type="text" name="resources" value="${esc(fromList(c.resources))}">
+          <p class="hint">Comma-separated</p></div>
+        <div class="fg"><label>Problems they mentioned</label>
+          <input type="text" name="problems" value="${esc(fromList(c.problems))}">
+          <p class="hint">Comma-separated</p></div>
+        <div class="fg"><label>Notes</label>
+          <textarea name="notes">${esc(c.notes||'')}</textarea></div>
+        <button class="btn btn-p" type="submit">Save Changes</button>
+      </form>
+    </div>`;
+
+  document.getElementById('editForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const f=e.target;
+    DB.updateContact(id,{
+      name:f.name.value.trim(),
+      date_met:f.date_met.value,
+      where_met:f.where_met.value.trim(),
+      profession:f.profession.value.trim(),
+      industry:f.industry.value.trim(),
+      skills:toList(f.skills.value),
+      interests:toList(f.interests.value),
+      resources:toList(f.resources.value),
+      problems:toList(f.problems.value),
+      notes:f.notes.value.trim(),
+    });
+    go('/contact/'+id);
+  });
+}
+
+function renderAnalyze(id){
+  const c=DB.getContact(id);
+  if(!c){go('/');return;}
+
+  document.getElementById('app').innerHTML=`
+    <div class="hdr">
+      <span class="hdr-back" onclick="go('/contact/${c.id}')" style="cursor:pointer">← Back</span>
+      <span class="hdr-title">${esc(c.name)}</span>
+    </div>
+    <div class="page">
+      <div class="fg">
+        <label>Focus / goal for this analysis</label>
+        <input type="text" id="ctx" placeholder="e.g. I'm fundraising, launching a SaaS, need a co-founder">
+        <p class="hint">Optional — helps Claude tailor the output</p>
+      </div>
+      <button class="btn btn-p" id="startBtn">✦ Start Analysis</button>
+      <div id="status" style="display:none;text-align:center;padding:24px 0;color:var(--muted);font-size:.9rem">
+        <div class="spinner" style="margin:0 auto 10px"></div>Thinking…
+      </div>
+      <div id="resultCard" style="display:none;margin-top:16px">
+        <p class="sh">Opportunity Map</p>
+        <div class="card"><div class="abox" id="resultBox"></div></div>
+        <div class="btn btn-s" onclick="go('/contact/${c.id}')" style="margin-top:12px;cursor:pointer">← Back to contact</div>
+      </div>
+      <div id="errBox" class="flash flash-err" style="display:none"></div>
+    </div>`;
+
+  document.getElementById('startBtn').addEventListener('click',()=>{
+    const ctx=document.getElementById('ctx').value;
+    const settings=DB.getSettings();
+    const apiKey=settings.apiKey;
+    document.getElementById('startBtn').style.display='none';
+    document.getElementById('status').style.display='block';
+    document.getElementById('errBox').style.display='none';
+
+    const box=document.getElementById('resultBox');
+    let full='';
+
+    streamClaude(
+      contactPrompt(c,settings,ctx),
+      apiKey,
+      chunk=>{
+        full+=chunk;
+        box.innerHTML=md(full);
+        document.getElementById('resultCard').style.display='block';
+        document.getElementById('status').style.display='none';
+      },
+      ()=>{
+        DB.addAnalysis(id,full,ctx);
+        document.getElementById('status').style.display='none';
+        document.getElementById('resultCard').style.display='block';
+      },
+      msg=>{
+        document.getElementById('status').style.display='none';
+        document.getElementById('startBtn').style.display='block';
+        const eb=document.getElementById('errBox');
+        eb.textContent=msg; eb.style.display='block';
+      }
+    );
+  });
+}
+
+function renderNetwork(){
+  const contacts=DB.getContacts();
+
+  document.getElementById('app').innerHTML=`
+    <div class="hdr">
+      <span class="hdr-back" onclick="go('/')" style="cursor:pointer">← Back</span>
+      <span class="hdr-title">Network</span>
+    </div>
+    <div class="page">
+      <div class="card" style="margin-bottom:16px">
+        <p style="font-size:.85rem;color:var(--muted)">${contacts.length} contact${contacts.length!==1?'s':''} in your network</p>
+        ${contacts.length?`<div class="tags" style="margin-top:8px">${contacts.slice(0,8).map(c=>`<span class="tag">${esc(c.name)}</span>`).join('')}${contacts.length>8?`<span class="tag" style="opacity:.5">+${contacts.length-8} more</span>`:''}</div>`:''}
+      </div>
+      ${contacts.length===0?`
+        <div class="empty"><div class="empty-icon">🕸️</div><p>Add some contacts first, then come back to see network patterns.</p></div>`:`
+        <div class="fg">
+          <label>What's your current goal?</label>
+          <input type="text" id="goal" placeholder="e.g. raise a seed round, find a co-founder, launch a product">
+          <p class="hint">Helps Claude focus the analysis</p>
+        </div>
+        <button class="btn btn-p" id="startBtn">✦ Analyze Network</button>
+        <div id="status" style="display:none;text-align:center;padding:24px 0;color:var(--muted);font-size:.9rem">
+          <div class="spinner" style="margin:0 auto 10px"></div>Mapping your network…
+        </div>
+        <div id="resultCard" style="display:none;margin-top:16px">
+          <p class="sh">Network Intelligence</p>
+          <div class="card"><div class="abox" id="resultBox"></div></div>
+        </div>
+        <div id="errBox" class="flash flash-err" style="display:none"></div>`}
+    </div>
+    ${navHTML('/network')}`;
+
+  const startBtn=document.getElementById('startBtn');
+  if(startBtn) startBtn.addEventListener('click',()=>{
+    const goal=document.getElementById('goal').value;
+    const settings=DB.getSettings();
+    startBtn.style.display='none';
+    document.getElementById('status').style.display='block';
+    document.getElementById('errBox').style.display='none';
+
+    const box=document.getElementById('resultBox');
+    let full='';
+
+    streamClaude(
+      networkPrompt(contacts,settings,goal),
+      settings.apiKey,
+      chunk=>{
+        full+=chunk;
+        box.innerHTML=md(full);
+        document.getElementById('resultCard').style.display='block';
+        document.getElementById('status').style.display='none';
+      },
+      ()=>{
+        document.getElementById('status').style.display='none';
+        document.getElementById('resultCard').style.display='block';
+      },
+      msg=>{
+        document.getElementById('status').style.display='none';
+        startBtn.style.display='block';
+        const eb=document.getElementById('errBox');
+        eb.textContent=msg; eb.style.display='block';
+      }
+    );
+  });
+}
+
+function renderSettings(){
+  const s=DB.getSettings();
+  document.getElementById('app').innerHTML=`
+    <div class="hdr">
+      <span class="hdr-title">⚙ Settings</span>
+    </div>
+    <div class="page">
+      <p class="sh">Anthropic API</p>
+      <div class="card" style="margin-bottom:16px">
+        <div class="fg" style="margin-bottom:0">
+          <label>API Key</label>
+          <input type="password" id="apiKey" value="${esc(s.apiKey)}" placeholder="sk-ant-…" autocomplete="off">
+          <p class="hint">Your key is stored only on this device, never sent anywhere except api.anthropic.com</p>
+        </div>
+      </div>
+
+      <p class="sh">Your profile (helps Claude personalize analyses)</p>
+      <div class="card" style="margin-bottom:16px">
+        <div class="fg"><label>Your name</label>
+          <input type="text" id="myName" value="${esc(s.myName)}" placeholder="Alex"></div>
+        <div class="fg"><label>Your skills</label>
+          <input type="text" id="mySkills" value="${esc(s.mySkills)}" placeholder="product, growth, Python"></div>
+        <div class="fg"><label>Your industry</label>
+          <input type="text" id="myIndustry" value="${esc(s.myIndustry)}" placeholder="SaaS, fintech, …"></div>
+        <div class="fg" style="margin-bottom:0"><label>Current projects</label>
+          <input type="text" id="myProjects" value="${esc(s.myProjects)}" placeholder="Building an AI networking tool"></div>
+      </div>
+
+      <button class="btn btn-p" id="saveBtn">Save Settings</button>
+      <div id="flash" style="display:none;margin-top:12px" class="flash flash-ok">Settings saved ✓</div>
+
+      <div class="divider"></div>
+      <p class="sh">Data</p>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:12px">${DB.getContacts().length} contacts stored on this device</p>
+      <button class="btn btn-d btn-sm" id="clearBtn">Clear all data</button>
+    </div>
+    ${navHTML('/settings')}`;
+
+  document.getElementById('saveBtn').addEventListener('click',()=>{
+    DB.saveSettings({
+      apiKey:document.getElementById('apiKey').value.trim(),
+      myName:document.getElementById('myName').value.trim(),
+      mySkills:document.getElementById('mySkills').value.trim(),
+      myIndustry:document.getElementById('myIndustry').value.trim(),
+      myProjects:document.getElementById('myProjects').value.trim(),
+    });
+    const f=document.getElementById('flash');
+    f.style.display='block';
+    setTimeout(()=>f.style.display='none',2000);
+  });
+
+  document.getElementById('clearBtn').addEventListener('click',()=>{
+    if(confirm('Delete ALL contacts and analyses? This cannot be undone.')){
+      localStorage.clear();
+      go('/');
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// ROUTER
+// ═══════════════════════════════════════════════════════
+function go(route){
+  location.hash='#'+route;
+}
+
+function route(){
+  const hash=location.hash.slice(1)||'/';
+
+  // /contact/:id/analyze → renderAnalyze
+  let m;
+  if(hash==='/') return renderHome();
+  if(hash==='/add') return renderAdd();
+  if(hash==='/network') return renderNetwork();
+  if(hash==='/settings') return renderSettings();
+  if((m=hash.match(/^\/contact\/(\d+)$/))) return renderView(Number(m[1]));
+  if((m=hash.match(/^\/edit\/(\d+)$/))) return renderEdit(Number(m[1]));
+  if((m=hash.match(/^\/analyze\/(\d+)$/))) return renderAnalyze(Number(m[1]));
+  // 404 fallback
+  go('/');
+}
+
+window.addEventListener('hashchange',route);
+window.addEventListener('load',()=>{
+  if(!location.hash) location.hash='#/';
+  // First run: prompt for API key
+  if(!DB.getSettings().apiKey && location.hash==='#/'){
+    go('/settings');
+  } else {
+    route();
+  }
+});
+</script>
+</body>
+</html>
