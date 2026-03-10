@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.directory.app'
+    namespace 'com.techrec.app'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.directory.app"
+        applicationId "com.techrec.app"
         minSdk 26
         targetSdk 34
         versionCode 1

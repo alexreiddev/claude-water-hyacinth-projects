@@ -2,770 +2,714 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0f0f13">
-<title>Directory</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>TechRec</title>
 <style>
+/* ── Reset ──────────────────────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0f0f13;--surface:#1a1a22;--border:#2a2a36;
-  --accent:#7c6eff;--accent2:#ff6eb4;
-  --text:#e8e8f0;--muted:#888899;
-  --ok:#4ade80;--err:#f87171;--radius:14px;
-  --safe-t:env(safe-area-inset-top,0px);
-  --safe-b:env(safe-area-inset-bottom,0px);
-}
-html{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:16px;-webkit-text-size-adjust:100%}
-body{min-height:100dvh;display:flex;flex-direction:column}
-a{color:inherit;text-decoration:none;-webkit-tap-highlight-color:transparent}
-
-/* header */
-.hdr{position:sticky;top:0;z-index:100;background:rgba(15,15,19,.92);backdrop-filter:blur(12px);
-  padding:calc(var(--safe-t) + 12px) 16px 12px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:10px}
-.hdr-title{font-size:1.1rem;font-weight:700;flex:1}
-.hdr-back{color:var(--accent);font-size:1rem}
-.hdr-action{color:var(--accent);font-size:.9rem}
-
-/* page */
-.page{flex:1;padding:16px 16px calc(var(--safe-b) + 80px);max-width:600px;margin:0 auto;width:100%}
-
-/* bottom nav */
-.bnav{position:fixed;bottom:0;left:0;right:0;z-index:100;
-  background:rgba(15,15,19,.95);backdrop-filter:blur(12px);
-  border-top:1px solid var(--border);
-  padding:8px 0 calc(var(--safe-b) + 4px);
-  display:flex;justify-content:space-around}
-.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;
-  color:var(--muted);font-size:.7rem;padding:4px 16px;cursor:pointer}
-.nav-item.active{color:var(--accent)}
-.nav-item svg{width:22px;height:22px}
-
-/* cards */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px}
-.clink{cursor:pointer;-webkit-tap-highlight-color:transparent}
-.clink:active .card{background:#222230}
-
-/* contact card */
-.cname{font-size:1rem;font-weight:600;margin-bottom:2px}
-.cmeta{font-size:.8rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px}
-.tag{background:rgba(124,110,255,.15);color:var(--accent);border-radius:20px;padding:2px 8px;font-size:.72rem;white-space:nowrap}
-.tag2{background:rgba(255,110,180,.15);color:var(--accent2)}
-.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
-
-/* forms */
-.fg{margin-bottom:16px}
-label{display:block;font-size:.82rem;color:var(--muted);margin-bottom:6px;font-weight:500}
-input[type=text],input[type=date],input[type=password],textarea{
-  width:100%;background:var(--surface);border:1px solid var(--border);
-  border-radius:10px;padding:12px 14px;color:var(--text);font-size:1rem;
-  font-family:inherit;outline:none;-webkit-appearance:none;appearance:none}
-input:focus,textarea:focus{border-color:var(--accent)}
-textarea{resize:vertical;min-height:80px}
-.hint{font-size:.72rem;color:var(--muted);margin-top:4px}
-
-/* buttons */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  border:none;border-radius:12px;padding:14px 20px;font-size:1rem;font-weight:600;
-  cursor:pointer;-webkit-tap-highlight-color:transparent;width:100%;transition:opacity .15s}
-.btn:active{opacity:.75}
-.btn-p{background:var(--accent);color:#fff}
-.btn-s{background:var(--surface);color:var(--text);border:1px solid var(--border)}
-.btn-d{background:rgba(248,113,113,.15);color:var(--err);border:1px solid rgba(248,113,113,.3)}
-.btn-sm{padding:8px 14px;font-size:.85rem;width:auto;border-radius:8px}
-
-/* fab */
-.fab{position:fixed;bottom:calc(var(--safe-b) + 70px);right:16px;width:56px;height:56px;
-  border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;
-  justify-content:center;font-size:1.6rem;box-shadow:0 4px 20px rgba(124,110,255,.4);
-  z-index:99;cursor:pointer;border:none;-webkit-tap-highlight-color:transparent}
-
-/* flash */
-.flash{border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:.9rem}
-.flash-ok{background:rgba(74,222,128,.12);color:var(--ok)}
-.flash-err{background:rgba(248,113,113,.12);color:var(--err)}
-
-/* detail */
-.drow{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1px solid var(--border)}
-.drow:last-child{border-bottom:none}
-.dlbl{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-.dval{font-size:.95rem}
-
-/* analysis */
-.abox{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-  padding:16px;white-space:pre-wrap;font-size:.88rem;line-height:1.65;overflow-wrap:break-word}
-.abox h2{font-size:.95rem;color:var(--accent);margin:14px 0 6px}
-.abox h3{font-size:.9rem;color:var(--accent2);margin:12px 0 4px}
-.abox strong{color:var(--accent)}
-.abox ul{padding-left:18px;margin:4px 0}
-
-/* search */
-.sbar{position:relative;margin-bottom:16px}
-.sbar input{padding-left:40px}
-.sicon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
-
-/* misc */
-.empty{text-align:center;padding:48px 16px;color:var(--muted)}
-.empty-icon{font-size:3rem;margin-bottom:12px}
-.spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);
-  border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+html,body{height:100%;overflow:hidden;background:#0f172a;color:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:15px;-webkit-text-size-adjust:100%}
+button{font-family:inherit;cursor:pointer}
+input,textarea,select{font-family:inherit}
+a{color:#6366f1;text-decoration:none}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:#334155;border-radius:2px}
+/* ── App Shell ──────────────────────────────────────────────────── */
+#app{display:flex;flex-direction:column;height:100vh;max-width:600px;margin:0 auto}
+/* ── Header ─────────────────────────────────────────────────────── */
+#header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#1e293b;border-bottom:1px solid #2d3f57;flex-shrink:0;position:relative;z-index:10}
+#header-title{font-size:18px;font-weight:700;background:linear-gradient(135deg,#818cf8,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-0.3px}
+.hdr-right{display:flex;gap:8px;align-items:center}
+.icon-btn{width:34px;height:34px;background:none;border:1px solid #334155;border-radius:8px;color:#94a3b8;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.icon-btn:active{background:#334155}
+/* ── Views ──────────────────────────────────────────────────────── */
+#views{flex:1;overflow:hidden;position:relative}
+.view{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;padding-bottom:70px}
+.view.active{display:block}
+/* ── Bottom Nav ─────────────────────────────────────────────────── */
+#nav{display:flex;background:#1e293b;border-top:1px solid #2d3f57;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;background:none;border:none;color:#475569;cursor:pointer;font-size:10px;font-weight:500;letter-spacing:0.2px;transition:color .15s;-webkit-tap-highlight-color:transparent;user-select:none}
+.nav-btn.active{color:#818cf8}
+.nav-icon{font-size:20px;line-height:1}
+/* ── Chat View ──────────────────────────────────────────────────── */
+#chat-view{padding:0}
+#messages{padding:16px 16px 8px;display:flex;flex-direction:column;gap:10px}
+.msg{display:flex;flex-direction:column;max-width:88%;animation:msgIn .2s cubic-bezier(.175,.885,.32,1.1)}
+.msg.user{align-self:flex-end;align-items:flex-end}
+.msg.assistant{align-self:flex-start;align-items:flex-start}
+.bubble{padding:11px 15px;border-radius:18px;line-height:1.55;word-break:break-word;font-size:14px}
+.user .bubble{background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;border-bottom-right-radius:5px}
+.assistant .bubble{background:#1e293b;color:#e2e8f0;border-bottom-left-radius:5px;border:1px solid #2d3f57}
+.msg-meta{font-size:10px;color:#475569;margin-top:3px;padding:0 4px}
+.typing-dots{display:flex;gap:4px;padding:13px 16px;background:#1e293b;border-radius:18px 18px 18px 5px;border:1px solid #2d3f57}
+.dot{width:6px;height:6px;background:#6366f1;border-radius:50%;animation:dotBounce .9s infinite ease-in-out}
+.dot:nth-child(2){animation-delay:.18s}.dot:nth-child(3){animation-delay:.36s}
+/* ── Input Area ─────────────────────────────────────────────────── */
+#input-wrap{position:fixed;bottom:60px;left:0;right:0;max-width:600px;margin:0 auto;padding:8px 12px;background:#1e293b;border-top:1px solid #2d3f57;display:flex;gap:8px;align-items:flex-end;z-index:20}
+#chat-input{flex:1;background:#0f172a;border:1.5px solid #334155;border-radius:20px;padding:10px 15px;color:#f1f5f9;font-size:14px;resize:none;max-height:100px;min-height:40px;line-height:1.4;outline:none;transition:border-color .2s}
+#chat-input:focus{border-color:#6366f1}
+#chat-input::placeholder{color:#475569}
+#send-btn{width:40px;height:40px;min-width:40px;background:linear-gradient(135deg,#6366f1,#4f46e5);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:.2s;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+#send-btn:active{transform:scale(.92)}
+#send-btn:disabled{background:#334155}
+#send-btn svg{width:17px;height:17px;fill:#fff}
+/* ── Search Progress ─────────────────────────────────────────────── */
+#search-bar{margin:0 16px 10px;padding:12px 14px;background:#1e293b;border:1px solid #2d3f57;border-radius:12px;font-size:13px;color:#94a3b8;display:none;align-items:center;gap:10px}
+#search-bar.show{display:flex}
+.mini-spin{width:14px;height:14px;border:2px solid #334155;border-top-color:#6366f1;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+/* ── Quick Suggestions ──────────────────────────────────────────── */
+#suggestions{padding:8px 16px;display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+#suggestions::-webkit-scrollbar{display:none}
+.sug-chip{flex-shrink:0;padding:7px 13px;background:#1e293b;border:1px solid #334155;border-radius:20px;font-size:12px;color:#94a3b8;cursor:pointer;white-space:nowrap;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.sug-chip:active{background:#334155;color:#f1f5f9}
+/* ── Picks View ─────────────────────────────────────────────────── */
+#picks-view{padding:16px}
+.section-head{text-align:center;padding:12px 0 16px;border-bottom:1px solid #2d3f57;margin-bottom:16px}
+.section-head h2{font-size:20px;font-weight:700}
+.section-head p{font-size:12px;color:#64748b;margin-top:4px;line-height:1.5}
+/* ── Product Card ─────────────────────────────────────────────────── */
+.p-card{background:#1e293b;border:1px solid #2d3f57;border-radius:16px;margin-bottom:16px;overflow:hidden}
+.p-card.is-top{border-color:#6366f1;box-shadow:0 0 20px rgba(99,102,241,.08)}
+.p-card-head{display:flex;align-items:flex-start;justify-content:space-between;padding:14px 15px;border-bottom:1px solid #2d3f57}
+.p-rank-area{display:flex;align-items:center;gap:10px}
+.rank-badge{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.rb-gold{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.rb-silver{background:linear-gradient(135deg,#9ca3af,#6b7280)}
+.rb-bronze{background:linear-gradient(135deg,#d97706,#92400e)}
+.rb-default{background:#6366f1}
+.p-name{font-size:14px;font-weight:700;color:#f1f5f9;line-height:1.3}
+.p-brand{font-size:11px;color:#6366f1;margin-top:3px;font-weight:600}
+.p-rating-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;margin-left:8px}
+.p-stars{font-size:11px;color:#f59e0b;letter-spacing:1px}
+.p-score{font-size:11px;color:#64748b}
+.p-card-body{padding:14px 15px}
+.p-price{font-size:17px;font-weight:700;color:#34d399;margin-bottom:10px}
+.p-match{display:inline-block;background:#1e1f50;border:1px solid #4f46e5;border-radius:20px;padding:3px 11px;font-size:11px;color:#818cf8;margin-bottom:10px;font-weight:500}
+.pros-cons-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.pros h5,.cons h5{font-size:11px;font-weight:700;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.pros h5{color:#34d399}.cons h5{color:#f87171}
+.pros ul,.cons ul{list-style:none;padding:0}
+.pros li,.cons li{font-size:12px;color:#94a3b8;padding:2px 0 2px 12px;position:relative;line-height:1.4}
+.pros li::before{content:'·';position:absolute;left:2px;color:#34d399}
+.cons li::before{content:'·';position:absolute;left:2px;color:#f87171}
+.p-verdict{font-size:12px;color:#94a3b8;line-height:1.55;padding:9px 11px;background:#0f172a;border-radius:8px;margin-bottom:10px;border:1px solid #1e293b}
+.p-best-for{font-size:12px;color:#64748b;margin-bottom:12px}
+.p-best-for strong{color:#94a3b8}
+.buy-row{display:flex;flex-wrap:wrap;gap:7px}
+.buy-chip{display:flex;align-items:center;gap:5px;padding:7px 11px;background:#0f172a;border:1px solid #334155;border-radius:8px;color:#cbd5e1;font-size:11px;font-weight:500;text-decoration:none;-webkit-tap-highlight-color:transparent}
+.buy-chip:active{border-color:#6366f1;background:#1e293b}
+.buy-icon{font-size:13px}
+.budget-card{background:#071a15;border:1px solid #10b981;border-radius:16px;padding:14px 15px;margin-bottom:16px}
+.budget-label{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#34d399;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.budget-name{font-size:15px;font-weight:700;color:#f1f5f9;margin-bottom:4px}
+.budget-price{font-size:13px;color:#34d399;font-weight:600;margin-bottom:8px}
+.budget-why{font-size:12px;color:#94a3b8;line-height:1.5}
+.verdict-box{padding:12px 14px;border-radius:10px;font-size:13px;line-height:1.6;margin-bottom:12px}
+.verdict-box.success{background:#071a15;border:1px solid #10b981;color:#6ee7b7}
+.verdict-box.warn{background:#1a1105;border:1px solid #d97706;color:#fcd34d}
+/* ── Admin View ─────────────────────────────────────────────────── */
+#admin-view{padding:16px}
+.adm-section{background:#1e293b;border:1px solid #2d3f57;border-radius:16px;margin-bottom:16px;overflow:hidden}
+.adm-head{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid #2d3f57}
+.adm-head-title{font-size:13px;font-weight:700;color:#f1f5f9;display:flex;align-items:center;gap:7px}
+.adm-body{padding:14px}
+.f-group{margin-bottom:12px}
+.f-group label{display:block;font-size:11px;color:#64748b;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.f-group input,.f-group select{width:100%;background:#0f172a;border:1.5px solid #334155;border-radius:8px;padding:9px 12px;color:#f1f5f9;font-size:14px;outline:none}
+.f-group input:focus,.f-group select:focus{border-color:#6366f1}
+.f-group select{appearance:none;-webkit-appearance:none}
+.f-note{font-size:11px;color:#475569;margin-top:4px;line-height:1.5}
+.f-row{display:flex;gap:8px;margin-top:4px}
+.btn{padding:9px 15px;border-radius:8px;border:none;font-size:13px;font-weight:600;transition:.15s;-webkit-tap-highlight-color:transparent}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:#6366f1;color:#fff}
+.btn-danger{background:#ef4444;color:#fff}
+.btn-ghost{background:none;border:1px solid #334155;color:#94a3b8}
+.btn-sm{padding:5px 10px;font-size:12px;border-radius:6px}
+.list-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #0f172a}
+.list-row:last-child{border-bottom:none}
+.list-info{flex:1;min-width:0}
+.list-name{font-size:13px;font-weight:600;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-sub{font-size:11px;color:#475569;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-actions{display:flex;gap:6px;flex-shrink:0;margin-left:8px}
+/* ── Setup Modal ─────────────────────────────────────────────────── */
+#setup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
+.setup-card{background:#1e293b;border:1px solid #334155;border-radius:20px;width:100%;max-width:380px;overflow:hidden}
+.setup-hero{padding:28px 24px 0;text-align:center}
+.setup-logo{font-size:52px;margin-bottom:12px}
+.setup-hero h1{font-size:24px;font-weight:700;background:linear-gradient(135deg,#818cf8,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.setup-hero p{font-size:13px;color:#64748b;line-height:1.6}
+.setup-body{padding:20px 24px}
+.setup-footer{padding:0 24px 24px}
+/* ── Toast ──────────────────────────────────────────────────────── */
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);padding:9px 18px;border-radius:20px;font-size:13px;font-weight:500;z-index:9999;display:none;white-space:nowrap;pointer-events:none}
+#toast.success{background:#10b981;color:#fff;display:block}
+#toast.error{background:#ef4444;color:#fff;display:block}
+/* ── Animations ──────────────────────────────────────────────────── */
+@keyframes msgIn{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes dotBounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
 @keyframes spin{to{transform:rotate(360deg)}}
-.sh{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:20px 0 8px}
-.divider{height:1px;background:var(--border);margin:16px 0}
-.cbrow{display:flex;align-items:center;gap:10px}
-input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);cursor:pointer}
-.cbrow label{margin:0;font-size:.9rem;color:var(--text);cursor:pointer}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.fade-in{animation:fadeIn .3s ease}
 </style>
 </head>
 <body>
-<div id="app"></div>
+<div id="app">
+
+  <div id="header">
+    <span id="header-title">🔍 TechRec</span>
+    <div class="hdr-right">
+      <button class="icon-btn" title="New chat" onclick="newChat()">✦</button>
+    </div>
+  </div>
+
+  <div id="views">
+    <div id="chat-view" class="view active">
+      <div id="suggestions"></div>
+      <div id="messages"></div>
+      <div id="search-bar">
+        <div class="mini-spin"></div>
+        <span id="search-bar-text">Searching review channels…</span>
+      </div>
+    </div>
+
+    <div id="picks-view" class="view">
+      <div class="section-head">
+        <h2>🏆 Top Picks</h2>
+        <p id="picks-sub">Chat with TechRec to get personalised recommendations</p>
+      </div>
+      <div id="product-list"></div>
+    </div>
+
+    <div id="admin-view" class="view">
+      <div id="admin-body"></div>
+    </div>
+  </div>
+
+  <div id="input-wrap">
+    <textarea id="chat-input" placeholder="e.g. gaming laptop under 50k…" rows="1"></textarea>
+    <button id="send-btn" onclick="handleSend()">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+
+  <nav id="nav">
+    <button class="nav-btn active" id="nav-chat" onclick="switchView('chat')">
+      <span class="nav-icon">💬</span>Chat
+    </button>
+    <button class="nav-btn" id="nav-picks" onclick="switchView('picks')">
+      <span class="nav-icon">🏆</span>Picks
+    </button>
+    <button class="nav-btn" id="nav-admin" onclick="switchView('admin')">
+      <span class="nav-icon">⚙️</span>Admin
+    </button>
+  </nav>
+</div>
+
+<div id="setup-overlay" style="display:none">
+  <div class="setup-card">
+    <div class="setup-hero">
+      <div class="setup-logo">🔍</div>
+      <h1>TechRec</h1>
+      <p>AI-powered product advisor. Find the best tech for your needs and budget — just ask in plain English.</p>
+    </div>
+    <div class="setup-body">
+      <div class="f-group">
+        <label>Anthropic API Key *</label>
+        <input type="password" id="setup-key" placeholder="sk-ant-api03-..." autocomplete="off" autocorrect="off" spellcheck="false">
+        <div class="f-note">Get a free key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>. Stored only on this device.</div>
+      </div>
+    </div>
+    <div class="setup-footer">
+      <button class="btn btn-primary" style="width:100%;padding:12px" onclick="finishSetup()">Start Exploring →</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
 <script>
-'use strict';
-
-// ═══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 // CONFIG
-// ═══════════════════════════════════════════════════════
-const MODEL = 'claude-sonnet-4-6';
-
-// ═══════════════════════════════════════════════════════
-// DB  (localStorage)
-// ═══════════════════════════════════════════════════════
-const DB = {
-  _get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},
-  _set(k,v){localStorage.setItem(k,JSON.stringify(v))},
-
-  getSettings(){return this._get('pd_settings',{apiKey:'',myName:'',mySkills:'',myIndustry:'',myProjects:''})},
-  saveSettings(s){this._set('pd_settings',s)},
-
-  getContacts(){return this._get('pd_contacts',[])},
-  _saveContacts(arr){this._set('pd_contacts',arr)},
-
-  addContact(data){
-    const cs=this.getContacts();
-    const c={...data,id:Date.now(),created_at:new Date().toISOString()};
-    cs.unshift(c); this._saveContacts(cs); return c.id;
-  },
-  getContact(id){return this.getContacts().find(c=>c.id===id)||null},
-  updateContact(id,data){
-    const cs=this.getContacts().map(c=>c.id===id?{...c,...data}:c);
-    this._saveContacts(cs);
-  },
-  deleteContact(id){
-    this._saveContacts(this.getContacts().filter(c=>c.id!==id));
-    localStorage.removeItem('pd_an_'+id);
-  },
-
-  getAnalyses(id){return this._get('pd_an_'+id,[])},
-  addAnalysis(id,text,context){
-    const an=this.getAnalyses(id);
-    an.unshift({text,context,created_at:new Date().toISOString()});
-    this._set('pd_an_'+id,an);
-  },
+// ══════════════════════════════════════════════════
+const Cfg={
+  get key()   {return localStorage.getItem('tr_key')||''},
+  get ytKey() {return localStorage.getItem('tr_yt')||''},
+  get ggKey() {return localStorage.getItem('tr_gg')||''},
+  get ggCx()  {return localStorage.getItem('tr_cx')||''},
+  get stores()   {try{return JSON.parse(localStorage.getItem('tr_stores'))||DS}catch(_){return DS}},
+  get channels() {try{return JSON.parse(localStorage.getItem('tr_channels'))||DC}catch(_){return DC}},
+  setKey:   v=>localStorage.setItem('tr_key',v),
+  setYtKey: v=>localStorage.setItem('tr_yt',v),
+  setGgKey: v=>localStorage.setItem('tr_gg',v),
+  setGgCx:  v=>localStorage.setItem('tr_cx',v),
+  setStores:   v=>localStorage.setItem('tr_stores',JSON.stringify(v)),
+  setChannels: v=>localStorage.setItem('tr_channels',JSON.stringify(v)),
 };
 
-// ═══════════════════════════════════════════════════════
-// API  (Anthropic streaming)
-// ═══════════════════════════════════════════════════════
-async function streamClaude(prompt,apiKey,onChunk,onDone,onError){
-  if(!apiKey){onError('No API key. Go to Settings and enter your Anthropic API key.');return;}
-  let resp;
-  try{
-    resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key':apiKey,
-        'anthropic-version':'2023-06-01',
-      },
-      body:JSON.stringify({
-        model:MODEL,max_tokens:1500,stream:true,
-        messages:[{role:'user',content:prompt}]
-      })
-    });
-  }catch(e){onError('Network error: '+e.message);return;}
+// ══════════════════════════════════════════════════
+// DEFAULT DATA
+// ══════════════════════════════════════════════════
+const DS=[
+  {id:1,name:'Amazon India',    url:'https://www.amazon.in',         logo:'🛒',searchUrl:'https://www.amazon.in/s?k={q}',              active:true},
+  {id:2,name:'Flipkart',        url:'https://www.flipkart.com',      logo:'🏪',searchUrl:'https://www.flipkart.com/search?q={q}',      active:true},
+  {id:3,name:'Croma',           url:'https://www.croma.com',         logo:'🔵',searchUrl:'https://www.croma.com/searchB?q={q}',        active:true},
+  {id:4,name:'Reliance Digital',url:'https://www.reliancedigital.in',logo:'📱',searchUrl:'https://www.reliancedigital.in/search?q={q}', active:true},
+  {id:5,name:'Vijay Sales',     url:'https://www.vijaysales.com',    logo:'🟠',searchUrl:'https://www.vijaysales.com/search/{q}',      active:true},
+];
+const DC=[
+  {id:1, name:'MKBHD',             platform:'youtube',channelId:'UCBJycsmduvYEL83R_U4JriQ',site:null,           active:true},
+  {id:2, name:'Dave2D',            platform:'youtube',channelId:'UCVYamHliCI9rw1tHR1xbkfw',site:null,           active:true},
+  {id:3, name:'Linus Tech Tips',   platform:'youtube',channelId:'UCXuqSBlHAE6Xw-yeJA0Tunw',site:null,           active:true},
+  {id:4, name:'Mr Mobile',         platform:'youtube',channelId:'UCSOpcUkE-is7u7c4AkLgqTw',site:null,           active:true},
+  {id:5, name:'JerryRigEverything',platform:'youtube',channelId:'UCWFKCr40YwOZQx8FHU_ZqqQ',site:null,           active:true},
+  {id:6, name:'RTINGS.com',        platform:'google', channelId:null, site:'rtings.com',        active:true},
+  {id:7, name:"Tom's Hardware",    platform:'google', channelId:null, site:'tomshardware.com',  active:true},
+  {id:8, name:'NotebookCheck',     platform:'google', channelId:null, site:'notebookcheck.net', active:true},
+  {id:9, name:'GSMArena',          platform:'google', channelId:null, site:'gsmarena.com',      active:true},
+  {id:10,name:'The Verge',         platform:'google', channelId:null, site:'theverge.com',      active:true},
+];
+const SUGS=[
+  '🎮 Gaming laptop under 50k',
+  '📱 Camera phone under ₹20,000',
+  '🎧 Wireless headphones for travel',
+  '💻 Light laptop for college',
+  '📺 55-inch TV under ₹40,000',
+  '⌨️ Mechanical keyboard for coding',
+];
 
-  if(!resp.ok){
-    try{const j=await resp.json();onError(j.error?.message||'API error '+resp.status);}
-    catch{onError('API error '+resp.status);}
+// ══════════════════════════════════════════════════
+// CLAUDE SYSTEM PROMPT
+// ══════════════════════════════════════════════════
+const SYS=`You are TechRec, an expert AI product advisor helping users find the best tech products.
+
+## Personality
+Friendly, knowledgeable, concise. Ask ONE question at a time. Be direct.
+
+## Flow
+
+Phase 1 — Understand: Parse category, use case, budget ("50k"=50000, "2 lakhs"=200000, "$500"=500 USD).
+
+Phase 2 — Narrow down (max 4 questions, ONE at a time): Ask about performance level, portability/size, must-have features, brand preferences.
+
+Phase 3 — When ready, end your message with EXACTLY this marker and JSON (no space between):
+REQUIREMENTS_READY:{"category":"laptop","use_case":"gaming","budget_amount":50000,"budget_currency":"INR","budget_display":"₹50,000","key_requirements":["dedicated GPU","15 inch","good thermals"],"preferences":{"portability":"important"},"search_query":"best gaming laptop under 50000 INR 2024 review"}
+
+Phase 4 — After search results provided, output EXACTLY:
+RECOMMENDATIONS_JSON:{"summary":"Brief overview","picks":[{"rank":1,"name":"ASUS TUF Gaming F15 FX506LH","brand":"ASUS","price_range":"₹44,990–₹52,000","rating":8.5,"match_score":94,"pros":["Great GPU for price","Solid build","Good thermals"],"cons":["60Hz display","Average battery"],"best_for":"Budget college gamers","verdict":"Best value in this range"},{"rank":2,"name":"Lenovo IdeaPad Gaming 3","brand":"Lenovo","price_range":"₹42,000–₹48,000","rating":8.1,"match_score":89,"pros":["Reliable brand","Good keyboard","Upgradeable"],"cons":["Runs warm","Plastic build"],"best_for":"First-time gamers","verdict":"Reliable entry-level option"}],"budget_pick":{"name":"Acer Nitro 5 AN515","price_range":"₹38,000–₹43,000","why":"AMD combo punches above its price"},"avoid":"Avoid no-brand 'gaming' laptops with integrated graphics","final_recommendation":"ASUS TUF Gaming F15 offers best performance-to-price ratio with college-friendly build quality."}
+
+Rules: Use REAL model names. 2-4 picks. Always add budget_pick. Ratings out of 10. match_score 0-100.`;
+
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+const A={msgs:[],req:null,picks:null,busy:false};
+
+// ══════════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════════
+function boot(){
+  if(!Cfg.key){
+    document.getElementById('setup-overlay').style.display='flex';
     return;
   }
+  renderSugs();
+  welcome();
+  renderAdmin();
+}
 
-  const reader=resp.body.getReader(),dec=new TextDecoder();
-  let buf='';
+function finishSetup(){
+  const k=document.getElementById('setup-key').value.trim();
+  if(!k.startsWith('sk-')){toast('Enter a valid key (starts with sk-)','error');return;}
+  Cfg.setKey(k);
+  document.getElementById('setup-overlay').style.display='none';
+  renderSugs();
+  welcome();
+  renderAdmin();
+}
+
+// ══════════════════════════════════════════════════
+// SUGGESTIONS
+// ══════════════════════════════════════════════════
+function renderSugs(){
+  document.getElementById('suggestions').innerHTML=
+    SUGS.map(s=>`<div class="sug-chip" onclick="useSug(${JSON.stringify(s)})">${s}</div>`).join('');
+}
+function useSug(t){
+  const clean=t.replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{26FF}\s]+/u,'').trim();
+  document.getElementById('chat-input').value=clean;
+  handleSend();
+}
+
+// ══════════════════════════════════════════════════
+// VIEW SWITCHING
+// ══════════════════════════════════════════════════
+function switchView(v){
+  document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('active'));
+  document.getElementById(v+'-view').classList.add('active');
+  document.getElementById('nav-'+v).classList.add('active');
+  document.getElementById('input-wrap').style.display=v==='chat'?'flex':'none';
+  if(v==='admin')renderAdmin();
+}
+
+// ══════════════════════════════════════════════════
+// CHAT
+// ══════════════════════════════════════════════════
+function welcome(){
+  bubble('assistant',`👋 Hi! I'm **TechRec** — your AI product advisor.
+
+Tell me what you need in plain language:
+• *"Gaming laptop, I have 50k"*
+• *"Best phone under ₹20k for camera"*
+• *"Noise-cancelling headphones around $200"*
+
+I'll ask a few quick questions, then find your best options! 🎯`);
+}
+
+async function handleSend(){
+  const inp=document.getElementById('chat-input');
+  const txt=inp.value.trim();
+  if(!txt||A.busy)return;
+  inp.value='';resizeInp(inp);
+  document.getElementById('suggestions').innerHTML='';
+  bubble('user',txt);
+  A.msgs.push({role:'user',content:txt});
+  await reply();
+}
+
+async function reply(){
+  A.busy=true;
+  document.getElementById('send-btn').disabled=true;
+  const typing=addTyping();
+  let buf='',bEl=null;
   try{
-    while(true){
-      const{done,value}=await reader.read();
-      if(done)break;
-      buf+=dec.decode(value,{stream:true});
-      const lines=buf.split('\n');
-      buf=lines.pop();
-      for(const line of lines){
-        if(!line.startsWith('data: '))continue;
-        const raw=line.slice(6).trim();
-        if(raw==='[DONE]'){onDone();return;}
-        try{
-          const ev=JSON.parse(raw);
-          if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta')
-            onChunk(ev.delta.text);
-        }catch{}
-      }
+    const r=await callClaude(A.msgs);
+    typing.remove();
+    bEl=bubble('assistant','');
+    for await(const c of streamTxt(r)){
+      buf+=c;
+      setBubble(bEl,buf.split('REQUIREMENTS_READY:')[0].trim());
+      scrollBot();
     }
-    onDone();
-  }catch(e){onError('Stream error: '+e.message);}
-}
-
-// ═══════════════════════════════════════════════════════
-// PROMPTS  (ported from claude_client.py)
-// ═══════════════════════════════════════════════════════
-function myProfileText(s){
-  const parts=[];
-  if(s.myName)    parts.push('Name: '+s.myName);
-  if(s.mySkills)  parts.push('Skills: '+s.mySkills);
-  if(s.myIndustry)parts.push('Industry: '+s.myIndustry);
-  if(s.myProjects)parts.push('Current projects: '+s.myProjects);
-  return parts.length?parts.join('\n'):'Not specified';
-}
-
-function contactText(c){
-  const ls=['Name: '+c.name,'Date met: '+c.date_met];
-  if(c.where_met)  ls.push('Where met: '+c.where_met);
-  if(c.profession) ls.push('Profession: '+c.profession);
-  if(c.industry)   ls.push('Industry: '+c.industry);
-  if(c.skills?.length)    ls.push('Skills: '+c.skills.join(', '));
-  if(c.interests?.length) ls.push('Interests: '+c.interests.join(', '));
-  if(c.resources?.length) ls.push('Resources/assets: '+c.resources.join(', '));
-  if(c.problems?.length)  ls.push('Problems/pain points: '+c.problems.join(', '));
-  if(c.notes)      ls.push('Notes: '+c.notes);
-  return ls.join('\n');
-}
-
-function contactPrompt(c,s,extra){
-  return `You are an entrepreneurial opportunity mapper. Given information about someone I recently met and my own profile, identify concrete ways we could collaborate, create value together, or help each other.
-
-MY PROFILE:
-${myProfileText(s)}
-
-PERSON I MET:
-${contactText(c)}${extra?'\nAdditional context: '+extra:''}
-
-Provide a structured analysis covering:
-
-1. **Entrepreneurial Opportunities** — Specific business ideas or ventures we could build together, referencing their skills/resources and mine.
-
-2. **Immediate Ways to Help Each Other** — Quick wins: introductions, advice, resources, or collaborations that could happen within the next 30 days.
-
-3. **Their Problems I Could Solve** — Based on the pain points they mentioned, how could I (or something I'm building) address them?
-
-4. **Skills/Resources I Should Leverage** — What they bring that would be uniquely valuable to me.
-
-5. **Suggested Follow-Up** — Specific, actionable next steps with this person (what to say, what to propose, what to ask).
-
-6. **Longer-Term Potential** — Bigger picture: strategic partnerships, investor angles, talent, or market access they could represent.
-
-Be specific and practical. Avoid generic advice. If information is limited, flag what data would sharpen the analysis.`;
-}
-
-function networkPrompt(contacts,s,goal){
-  const sums=contacts.map(c=>
-    `- ${c.name} (${c.profession||'unknown'}): skills=${JSON.stringify(c.skills||[])}, industry=${c.industry||''}`
-  ).join('\n');
-  return `You are an entrepreneurial network analyst. Review this person's contact network and surface patterns, synergies, and hidden opportunities.
-
-MY PROFILE:
-${myProfileText(s)}${goal?'\nMy current goal: '+goal:''}
-
-MY NETWORK (${contacts.length} contacts):
-${sums}
-
-Provide:
-
-1. **Cross-Connection Opportunities** — Pairs or groups of contacts who should meet each other (and why).
-
-2. **Emerging Themes** — Patterns in skills, industries, or problems that suggest a market opportunity.
-
-3. **Team Assembly** — If I wanted to start something new, which contacts form the best founding team or advisory board?
-
-4. **Network Gaps** — What types of people am I missing that would accelerate my goals?
-
-5. **Top 3 Highest-Leverage Actions** — The single best moves I can make with this network right now.
-
-Be specific and reference contacts by name.`;
-}
-
-// ═══════════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════════
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function toList(s){return s.split(',').map(x=>x.trim()).filter(Boolean);}
-function fromList(a){return Array.isArray(a)?a.join(', '):'';}
-function today(){return new Date().toISOString().slice(0,10);}
-
-function md(text){
-  return esc(text)
-    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-    .replace(/^#{1,2} (.+)$/gm,'<h2>$1</h2>')
-    .replace(/^#{3} (.+)$/gm,'<h3>$1</h3>')
-    .replace(/^[-*] (.+)$/gm,'<li>$1</li>')
-    .replace(/(<li>.*<\/li>\n?)+/gs,'<ul>$&</ul>');
-}
-
-function navHTML(active){
-  const items=[
-    {route:'/',icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,label:'Contacts'},
-    {route:'/add',icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,label:'Add'},
-    {route:'/network',icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>`,label:'Network'},
-    {route:'/settings',icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>`,label:'Settings'},
-  ];
-  return `<nav class="bnav">${items.map(i=>`
-    <div class="nav-item${active===i.route?' active':''}" onclick="go('${i.route}')">${i.icon}${i.label}</div>`).join('')}
-  </nav>`;
-}
-
-// ═══════════════════════════════════════════════════════
-// VIEWS
-// ═══════════════════════════════════════════════════════
-
-function renderHome(search=''){
-  let contacts=DB.getContacts();
-  if(search){
-    const q=search.toLowerCase();
-    contacts=contacts.filter(c=>
-      c.name.toLowerCase().includes(q)||
-      (c.profession||'').toLowerCase().includes(q)||
-      (c.industry||'').toLowerCase().includes(q)||
-      (c.skills||[]).some(s=>s.toLowerCase().includes(q))
-    );
+    const clean=buf.split('REQUIREMENTS_READY:')[0].trim();
+    A.msgs.push({role:'assistant',content:clean});
+    const req=getJSON(buf,'REQUIREMENTS_READY:');
+    if(req){A.req=req;await doSearch(req);}
+  }catch(e){
+    typing?.remove();
+    bubble('assistant','⚠️ '+e.message);
+  }finally{
+    A.busy=false;
+    document.getElementById('send-btn').disabled=false;
+    scrollBot();
   }
-
-  const list=contacts.length?contacts.map(c=>`
-    <div class="clink" onclick="go('/contact/${c.id}')">
-      <div class="card">
-        <div class="cname">${esc(c.name)}</div>
-        <div class="cmeta">
-          ${c.profession?`<span>${esc(c.profession)}</span>`:''}
-          ${c.industry?`<span>· ${esc(c.industry)}</span>`:''}
-          <span style="color:var(--muted)">${esc(c.date_met||'')}</span>
-        </div>
-        ${(c.skills||[]).length?`<div class="tags">${c.skills.slice(0,4).map(s=>`<span class="tag">${esc(s)}</span>`).join('')}${c.skills.length>4?`<span class="tag" style="opacity:.6">+${c.skills.length-4}</span>`:''}</div>`:''}
-      </div>
-    </div>`).join('')
-    :`<div class="empty"><div class="empty-icon">👋</div><p>${search?`No results for "${esc(search)}"`:'No contacts yet.<br>Tap <strong>+</strong> to log your first.'}</p></div>`;
-
-  document.getElementById('app').innerHTML=`
-    <div class="hdr">
-      <span class="hdr-title">📇 Directory</span>
-      <span class="hdr-action" onclick="go('/network')" style="cursor:pointer">Network ↗</span>
-    </div>
-    <div class="page">
-      <div class="sbar">
-        <span class="sicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
-        <input type="text" id="sq" placeholder="Search contacts…" value="${esc(search)}" autocomplete="off">
-      </div>
-      ${contacts.length?`<p class="sh">${contacts.length} contact${contacts.length!==1?'s':''}</p>`:''}
-      ${list}
-    </div>
-    <button class="fab" onclick="go('/add')">+</button>
-    ${navHTML('/')}`;
-
-  document.getElementById('sq').addEventListener('input',e=>{
-    clearTimeout(window._st);
-    window._st=setTimeout(()=>renderHome(e.target.value),250);
-  });
 }
 
-function renderAdd(){
-  document.getElementById('app').innerHTML=`
-    <div class="hdr">
-      <span class="hdr-back" onclick="go('/')" style="cursor:pointer">← Back</span>
-      <span class="hdr-title">New Contact</span>
-    </div>
-    <div class="page">
-      <form id="addForm">
-        <div class="fg"><label>Name *</label>
-          <input type="text" name="name" required placeholder="Full name" autofocus autocomplete="name"></div>
-        <div class="fg"><label>Date met</label>
-          <input type="date" name="date_met" value="${today()}"></div>
-        <div class="fg"><label>Where / how did you meet?</label>
-          <input type="text" name="where_met" placeholder="e.g. conference, gym, coffee shop"></div>
-        <div class="divider"></div>
-        <div class="fg"><label>Profession / title</label>
-          <input type="text" name="profession" placeholder="e.g. VC partner, founder, designer"></div>
-        <div class="fg"><label>Industry / domain</label>
-          <input type="text" name="industry" placeholder="e.g. fintech, climate, e-commerce"></div>
-        <div class="fg"><label>Skills &amp; expertise</label>
-          <input type="text" name="skills" placeholder="Python, fundraising, marketing" autocomplete="off">
-          <p class="hint">Comma-separated</p></div>
-        <div class="fg"><label>Interests &amp; passions</label>
-          <input type="text" name="interests" placeholder="climate tech, travel, music" autocomplete="off">
-          <p class="hint">Comma-separated</p></div>
-        <div class="divider"></div>
-        <div class="fg"><label>Resources &amp; assets</label>
-          <input type="text" name="resources" placeholder="VC network, factory, $500k ARR biz" autocomplete="off">
-          <p class="hint">What they have access to — comma-separated</p></div>
-        <div class="fg"><label>Problems they mentioned</label>
-          <input type="text" name="problems" placeholder="can't find engineers, cash flow issues" autocomplete="off">
-          <p class="hint">Pain points — comma-separated</p></div>
-        <div class="fg"><label>Notes</label>
-          <textarea name="notes" placeholder="Anything else worth remembering…"></textarea></div>
-        <div class="fg">
-          <div class="cbrow">
-            <input type="checkbox" id="autoA" name="auto_analyze" checked>
-            <label for="autoA">Analyze with Claude after saving</label>
-          </div>
-        </div>
-        <button class="btn btn-p" type="submit">Save Contact</button>
-      </form>
-    </div>`;
-
-  document.getElementById('addForm').addEventListener('submit',e=>{
-    e.preventDefault();
-    const f=e.target;
-    const id=DB.addContact({
-      name:f.name.value.trim(),
-      date_met:f.date_met.value,
-      where_met:f.where_met.value.trim(),
-      profession:f.profession.value.trim(),
-      industry:f.industry.value.trim(),
-      skills:toList(f.skills.value),
-      interests:toList(f.interests.value),
-      resources:toList(f.resources.value),
-      problems:toList(f.problems.value),
-      notes:f.notes.value.trim(),
-    });
-    if(f.auto_analyze.checked) go('/analyze/'+id);
-    else go('/contact/'+id);
-  });
+// ══════════════════════════════════════════════════
+// SEARCH + RECOMMEND
+// ══════════════════════════════════════════════════
+async function doSearch(req){
+  showSearch('Searching trusted review channels…');
+  const q=req.search_query||req.category+' '+req.use_case+' review';
+  const[yt,gg]=await Promise.all([ytSearch(q),ggSearch(q)]);
+  const n=yt.length+gg.length;
+  updSearch(n?`Found ${n} reviews — generating recommendations…`:'Generating from knowledge…');
+  await genRecs({youtube:yt,google:gg});
 }
 
-function renderView(id){
-  const c=DB.getContact(id);
-  if(!c){go('/');return;}
-  const analyses=DB.getAnalyses(id);
-
-  const row=(lbl,val)=>val?`<div class="drow"><span class="dlbl">${lbl}</span><span class="dval">${val}</span></div>`:'';
-  const tagsHTML=(arr,cls='')=>arr&&arr.length?`<div class="tags">${arr.map(s=>`<span class="tag ${cls}">${esc(s)}</span>`).join('')}</div>`:'';
-  const tagRow=(lbl,arr,cls='')=>arr&&arr.length?`<div class="drow"><span class="dlbl">${lbl}</span>${tagsHTML(arr,cls)}</div>`:'';
-
-  const pastAn=analyses.length?`
-    <p class="sh">${analyses.length} past analysis${analyses.length!==1?'es':''}</p>
-    ${analyses.map((a,i)=>`
-      <div class="card" style="margin-bottom:12px">
-        <p style="font-size:.72rem;color:var(--muted);margin-bottom:10px">${esc(a.created_at.slice(0,10))}${a.context?' · '+esc(a.context):''}</p>
-        <div class="abox" id="an${i}"></div>
-      </div>`).join('')}`:'';
-
-  document.getElementById('app').innerHTML=`
-    <div class="hdr">
-      <span class="hdr-back" onclick="go('/')" style="cursor:pointer">← Back</span>
-      <span class="hdr-title">${esc(c.name)}</span>
-      <span class="hdr-action" onclick="go('/edit/${c.id}')" style="cursor:pointer">Edit</span>
-    </div>
-    <div class="page">
-      <div class="card" style="margin-bottom:16px">
-        ${row('Role',[c.profession,c.industry].filter(Boolean).join(' · '))}
-        ${row('Met at',c.where_met?(c.where_met+(c.date_met?' · '+c.date_met:'')):c.date_met)}
-        ${tagRow('Skills',c.skills)}
-        ${tagRow('Interests',c.interests,'tag2')}
-        ${row('Resources',(c.resources||[]).join(', '))}
-        ${row('Problems',(c.problems||[]).join(', '))}
-        ${c.notes?`<div class="drow"><span class="dlbl">Notes</span><span class="dval" style="white-space:pre-wrap">${esc(c.notes)}</span></div>`:''}
-      </div>
-      <div class="btn btn-p" onclick="go('/analyze/${c.id}')" style="margin-bottom:8px;cursor:pointer">✦ Analyze with Claude</div>
-      ${pastAn}
-      <div class="divider"></div>
-      <button class="btn btn-d btn-sm" id="delBtn">Delete contact</button>
-    </div>
-    ${navHTML('')}`;
-
-  analyses.forEach((a,i)=>{
-    const el=document.getElementById('an'+i);
-    if(el) el.innerHTML=md(a.text);
-  });
-  document.getElementById('delBtn').addEventListener('click',()=>{
-    if(confirm('Delete '+c.name+'?')){DB.deleteContact(id);go('/');}
-  });
-}
-
-function renderEdit(id){
-  const c=DB.getContact(id);
-  if(!c){go('/');return;}
-
-  document.getElementById('app').innerHTML=`
-    <div class="hdr">
-      <span class="hdr-back" onclick="go('/contact/${c.id}')" style="cursor:pointer">← Back</span>
-      <span class="hdr-title">Edit</span>
-    </div>
-    <div class="page">
-      <form id="editForm">
-        <div class="fg"><label>Name *</label>
-          <input type="text" name="name" required value="${esc(c.name)}"></div>
-        <div class="fg"><label>Date met</label>
-          <input type="date" name="date_met" value="${esc(c.date_met||'')}"></div>
-        <div class="fg"><label>Where / how did you meet?</label>
-          <input type="text" name="where_met" value="${esc(c.where_met||'')}"></div>
-        <div class="divider"></div>
-        <div class="fg"><label>Profession / title</label>
-          <input type="text" name="profession" value="${esc(c.profession||'')}"></div>
-        <div class="fg"><label>Industry / domain</label>
-          <input type="text" name="industry" value="${esc(c.industry||'')}"></div>
-        <div class="fg"><label>Skills &amp; expertise</label>
-          <input type="text" name="skills" value="${esc(fromList(c.skills))}">
-          <p class="hint">Comma-separated</p></div>
-        <div class="fg"><label>Interests &amp; passions</label>
-          <input type="text" name="interests" value="${esc(fromList(c.interests))}">
-          <p class="hint">Comma-separated</p></div>
-        <div class="divider"></div>
-        <div class="fg"><label>Resources &amp; assets</label>
-          <input type="text" name="resources" value="${esc(fromList(c.resources))}">
-          <p class="hint">Comma-separated</p></div>
-        <div class="fg"><label>Problems they mentioned</label>
-          <input type="text" name="problems" value="${esc(fromList(c.problems))}">
-          <p class="hint">Comma-separated</p></div>
-        <div class="fg"><label>Notes</label>
-          <textarea name="notes">${esc(c.notes||'')}</textarea></div>
-        <button class="btn btn-p" type="submit">Save Changes</button>
-      </form>
-    </div>`;
-
-  document.getElementById('editForm').addEventListener('submit',e=>{
-    e.preventDefault();
-    const f=e.target;
-    DB.updateContact(id,{
-      name:f.name.value.trim(),
-      date_met:f.date_met.value,
-      where_met:f.where_met.value.trim(),
-      profession:f.profession.value.trim(),
-      industry:f.industry.value.trim(),
-      skills:toList(f.skills.value),
-      interests:toList(f.interests.value),
-      resources:toList(f.resources.value),
-      problems:toList(f.problems.value),
-      notes:f.notes.value.trim(),
-    });
-    go('/contact/'+id);
-  });
-}
-
-function renderAnalyze(id){
-  const c=DB.getContact(id);
-  if(!c){go('/');return;}
-
-  document.getElementById('app').innerHTML=`
-    <div class="hdr">
-      <span class="hdr-back" onclick="go('/contact/${c.id}')" style="cursor:pointer">← Back</span>
-      <span class="hdr-title">${esc(c.name)}</span>
-    </div>
-    <div class="page">
-      <div class="fg">
-        <label>Focus / goal for this analysis</label>
-        <input type="text" id="ctx" placeholder="e.g. I'm fundraising, launching a SaaS, need a co-founder">
-        <p class="hint">Optional — helps Claude tailor the output</p>
-      </div>
-      <button class="btn btn-p" id="startBtn">✦ Start Analysis</button>
-      <div id="status" style="display:none;text-align:center;padding:24px 0;color:var(--muted);font-size:.9rem">
-        <div class="spinner" style="margin:0 auto 10px"></div>Thinking…
-      </div>
-      <div id="resultCard" style="display:none;margin-top:16px">
-        <p class="sh">Opportunity Map</p>
-        <div class="card"><div class="abox" id="resultBox"></div></div>
-        <div class="btn btn-s" onclick="go('/contact/${c.id}')" style="margin-top:12px;cursor:pointer">← Back to contact</div>
-      </div>
-      <div id="errBox" class="flash flash-err" style="display:none"></div>
-    </div>`;
-
-  document.getElementById('startBtn').addEventListener('click',()=>{
-    const ctx=document.getElementById('ctx').value;
-    const settings=DB.getSettings();
-    const apiKey=settings.apiKey;
-    document.getElementById('startBtn').style.display='none';
-    document.getElementById('status').style.display='block';
-    document.getElementById('errBox').style.display='none';
-
-    const box=document.getElementById('resultBox');
-    let full='';
-
-    streamClaude(
-      contactPrompt(c,settings,ctx),
-      apiKey,
-      chunk=>{
-        full+=chunk;
-        box.innerHTML=md(full);
-        document.getElementById('resultCard').style.display='block';
-        document.getElementById('status').style.display='none';
-      },
-      ()=>{
-        DB.addAnalysis(id,full,ctx);
-        document.getElementById('status').style.display='none';
-        document.getElementById('resultCard').style.display='block';
-      },
-      msg=>{
-        document.getElementById('status').style.display='none';
-        document.getElementById('startBtn').style.display='block';
-        const eb=document.getElementById('errBox');
-        eb.textContent=msg; eb.style.display='block';
-      }
-    );
-  });
-}
-
-function renderNetwork(){
-  const contacts=DB.getContacts();
-
-  document.getElementById('app').innerHTML=`
-    <div class="hdr">
-      <span class="hdr-back" onclick="go('/')" style="cursor:pointer">← Back</span>
-      <span class="hdr-title">Network</span>
-    </div>
-    <div class="page">
-      <div class="card" style="margin-bottom:16px">
-        <p style="font-size:.85rem;color:var(--muted)">${contacts.length} contact${contacts.length!==1?'s':''} in your network</p>
-        ${contacts.length?`<div class="tags" style="margin-top:8px">${contacts.slice(0,8).map(c=>`<span class="tag">${esc(c.name)}</span>`).join('')}${contacts.length>8?`<span class="tag" style="opacity:.5">+${contacts.length-8} more</span>`:''}</div>`:''}
-      </div>
-      ${contacts.length===0?`
-        <div class="empty"><div class="empty-icon">🕸️</div><p>Add some contacts first, then come back to see network patterns.</p></div>`:`
-        <div class="fg">
-          <label>What's your current goal?</label>
-          <input type="text" id="goal" placeholder="e.g. raise a seed round, find a co-founder, launch a product">
-          <p class="hint">Helps Claude focus the analysis</p>
-        </div>
-        <button class="btn btn-p" id="startBtn">✦ Analyze Network</button>
-        <div id="status" style="display:none;text-align:center;padding:24px 0;color:var(--muted);font-size:.9rem">
-          <div class="spinner" style="margin:0 auto 10px"></div>Mapping your network…
-        </div>
-        <div id="resultCard" style="display:none;margin-top:16px">
-          <p class="sh">Network Intelligence</p>
-          <div class="card"><div class="abox" id="resultBox"></div></div>
-        </div>
-        <div id="errBox" class="flash flash-err" style="display:none"></div>`}
-    </div>
-    ${navHTML('/network')}`;
-
-  const startBtn=document.getElementById('startBtn');
-  if(startBtn) startBtn.addEventListener('click',()=>{
-    const goal=document.getElementById('goal').value;
-    const settings=DB.getSettings();
-    startBtn.style.display='none';
-    document.getElementById('status').style.display='block';
-    document.getElementById('errBox').style.display='none';
-
-    const box=document.getElementById('resultBox');
-    let full='';
-
-    streamClaude(
-      networkPrompt(contacts,settings,goal),
-      settings.apiKey,
-      chunk=>{
-        full+=chunk;
-        box.innerHTML=md(full);
-        document.getElementById('resultCard').style.display='block';
-        document.getElementById('status').style.display='none';
-      },
-      ()=>{
-        document.getElementById('status').style.display='none';
-        document.getElementById('resultCard').style.display='block';
-      },
-      msg=>{
-        document.getElementById('status').style.display='none';
-        startBtn.style.display='block';
-        const eb=document.getElementById('errBox');
-        eb.textContent=msg; eb.style.display='block';
-      }
-    );
-  });
-}
-
-function renderSettings(){
-  const s=DB.getSettings();
-  document.getElementById('app').innerHTML=`
-    <div class="hdr">
-      <span class="hdr-title">⚙ Settings</span>
-    </div>
-    <div class="page">
-      <p class="sh">Anthropic API</p>
-      <div class="card" style="margin-bottom:16px">
-        <div class="fg" style="margin-bottom:0">
-          <label>API Key</label>
-          <input type="password" id="apiKey" value="${esc(s.apiKey)}" placeholder="sk-ant-…" autocomplete="off">
-          <p class="hint">Your key is stored only on this device, never sent anywhere except api.anthropic.com</p>
-        </div>
-      </div>
-
-      <p class="sh">Your profile (helps Claude personalize analyses)</p>
-      <div class="card" style="margin-bottom:16px">
-        <div class="fg"><label>Your name</label>
-          <input type="text" id="myName" value="${esc(s.myName)}" placeholder="Alex"></div>
-        <div class="fg"><label>Your skills</label>
-          <input type="text" id="mySkills" value="${esc(s.mySkills)}" placeholder="product, growth, Python"></div>
-        <div class="fg"><label>Your industry</label>
-          <input type="text" id="myIndustry" value="${esc(s.myIndustry)}" placeholder="SaaS, fintech, …"></div>
-        <div class="fg" style="margin-bottom:0"><label>Current projects</label>
-          <input type="text" id="myProjects" value="${esc(s.myProjects)}" placeholder="Building an AI networking tool"></div>
-      </div>
-
-      <button class="btn btn-p" id="saveBtn">Save Settings</button>
-      <div id="flash" style="display:none;margin-top:12px" class="flash flash-ok">Settings saved ✓</div>
-
-      <div class="divider"></div>
-      <p class="sh">Data</p>
-      <p style="font-size:.85rem;color:var(--muted);margin-bottom:12px">${DB.getContacts().length} contacts stored on this device</p>
-      <button class="btn btn-d btn-sm" id="clearBtn">Clear all data</button>
-    </div>
-    ${navHTML('/settings')}`;
-
-  document.getElementById('saveBtn').addEventListener('click',()=>{
-    DB.saveSettings({
-      apiKey:document.getElementById('apiKey').value.trim(),
-      myName:document.getElementById('myName').value.trim(),
-      mySkills:document.getElementById('mySkills').value.trim(),
-      myIndustry:document.getElementById('myIndustry').value.trim(),
-      myProjects:document.getElementById('myProjects').value.trim(),
-    });
-    const f=document.getElementById('flash');
-    f.style.display='block';
-    setTimeout(()=>f.style.display='none',2000);
-  });
-
-  document.getElementById('clearBtn').addEventListener('click',()=>{
-    if(confirm('Delete ALL contacts and analyses? This cannot be undone.')){
-      localStorage.clear();
-      go('/');
+async function genRecs(sr){
+  const ytP=sr.youtube?.length?'\n\n**YouTube Reviews:**\n'+sr.youtube.slice(0,8).map(r=>`- "${r.title}" by ${r.channel} — ${r.url}`).join('\n'):'';
+  const ggP=sr.google?.length?'\n\n**Tech Articles:**\n'+sr.google.slice(0,8).map(r=>`- "${r.title}" from ${r.source} — ${r.url}${r.snippet?'\n  '+r.snippet.slice(0,160):''}`).join('\n'):'';
+  const storeList=Cfg.stores.filter(s=>s.active).map(s=>`- ${s.name}: ${s.url}`).join('\n');
+  const ctx=`Search results gathered. Generate recommendations now.\n${ytP||ggP||'\nNo live data — use training knowledge.'}\n\n**Buy stores:**\n${storeList}\n\nOutput RECOMMENDATIONS_JSON:`;
+  const msgs=[...A.msgs,{role:'user',content:ctx}];
+  let buf='';
+  const bEl=bubble('assistant','');
+  try{
+    const r=await callClaude(msgs);
+    for await(const c of streamTxt(r)){
+      buf+=c;
+      const d=buf.split('RECOMMENDATIONS_JSON:')[0].trim();
+      if(d)setBubble(bEl,d);
+      scrollBot();
     }
+    const recs=getJSON(buf,'RECOMMENDATIONS_JSON:');
+    if(recs){
+      A.picks=recs;
+      renderPicks(recs);
+      hideSearch();
+      setTimeout(()=>{
+        bubble('assistant','✅ Done! Tap **Picks** below to see your full recommendations with buy links.');
+        switchView('picks');
+      },400);
+    }else{
+      hideSearch();
+      setBubble(bEl,buf.trim());
+    }
+  }catch(e){hideSearch();setBubble(bEl,'⚠️ '+e.message);}
+}
+
+// ══════════════════════════════════════════════════
+// CLAUDE API
+// ══════════════════════════════════════════════════
+async function callClaude(msgs){
+  const key=Cfg.key;
+  if(!key)throw new Error('API key not set. Go to Admin → API Keys.');
+  const r=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':key,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true',
+    },
+    body:JSON.stringify({
+      model:'claude-opus-4-6',
+      max_tokens:8192,
+      thinking:{type:'adaptive'},
+      system:SYS,
+      messages:msgs,
+      stream:true,
+    }),
   });
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||`API ${r.status}`);}
+  return r;
 }
 
-// ═══════════════════════════════════════════════════════
-// ROUTER
-// ═══════════════════════════════════════════════════════
-function go(route){
-  location.hash='#'+route;
-}
-
-function route(){
-  const hash=location.hash.slice(1)||'/';
-
-  // /contact/:id/analyze → renderAnalyze
-  let m;
-  if(hash==='/') return renderHome();
-  if(hash==='/add') return renderAdd();
-  if(hash==='/network') return renderNetwork();
-  if(hash==='/settings') return renderSettings();
-  if((m=hash.match(/^\/contact\/(\d+)$/))) return renderView(Number(m[1]));
-  if((m=hash.match(/^\/edit\/(\d+)$/))) return renderEdit(Number(m[1]));
-  if((m=hash.match(/^\/analyze\/(\d+)$/))) return renderAnalyze(Number(m[1]));
-  // 404 fallback
-  go('/');
-}
-
-window.addEventListener('hashchange',route);
-window.addEventListener('load',()=>{
-  if(!location.hash) location.hash='#/';
-  // First run: prompt for API key
-  if(!DB.getSettings().apiKey && location.hash==='#/'){
-    go('/settings');
-  } else {
-    route();
+async function* streamTxt(r){
+  const reader=r.body.getReader();const dec=new TextDecoder();let p='';
+  while(true){
+    const{done,value}=await reader.read();if(done)break;
+    p+=dec.decode(value,{stream:true});
+    const lines=p.split('\n');p=lines.pop();
+    for(const l of lines){
+      if(!l.startsWith('data:'))continue;
+      const raw=l.slice(5).trim();if(raw==='[DONE]')return;
+      try{const d=JSON.parse(raw);if(d.type==='content_block_delta'&&d.delta?.type==='text_delta')yield d.delta.text;}catch(_){}
+    }
   }
-});
+}
+
+// ══════════════════════════════════════════════════
+// YOUTUBE / GOOGLE SEARCH
+// ══════════════════════════════════════════════════
+async function ytSearch(q){
+  if(!Cfg.ytKey)return[];
+  const chs=Cfg.channels.filter(c=>c.platform==='youtube'&&c.active);
+  const res=[];
+  for(const ch of chs.slice(0,5)){
+    if(!ch.channelId)continue;
+    try{
+      const p=new URLSearchParams({part:'snippet',channelId:ch.channelId,q,type:'video',order:'relevance',maxResults:'3',key:Cfg.ytKey});
+      const d=await(await fetch(`https://www.googleapis.com/youtube/v3/search?${p}`)).json();
+      for(const i of d.items||[]){
+        const s=i.snippet||{};const v=i.id?.videoId||'';
+        res.push({title:s.title||'',channel:s.channelTitle||ch.name,description:(s.description||'').slice(0,200),url:`https://www.youtube.com/watch?v=${v}`});
+      }
+    }catch(_){continue;}
+  }
+  return res;
+}
+
+async function ggSearch(q){
+  if(!Cfg.ggKey||!Cfg.ggCx)return[];
+  const chs=Cfg.channels.filter(c=>c.platform==='google'&&c.active);
+  const res=[];
+  for(const ch of chs.slice(0,5)){
+    if(!ch.site)continue;
+    try{
+      const p=new URLSearchParams({key:Cfg.ggKey,cx:Cfg.ggCx,q:`${q} site:${ch.site}`,num:'3'});
+      const d=await(await fetch(`https://www.googleapis.com/customsearch/v1?${p}`)).json();
+      for(const i of d.items||[])res.push({title:i.title||'',source:ch.site,snippet:(i.snippet||'').slice(0,200),url:i.link||''});
+    }catch(_){continue;}
+  }
+  return res;
+}
+
+// ══════════════════════════════════════════════════
+// PICKS RENDERING
+// ══════════════════════════════════════════════════
+function renderPicks(rec){
+  const c=document.getElementById('product-list');
+  c.innerHTML='';
+  if(rec.summary)document.getElementById('picks-sub').textContent=rec.summary;
+  (rec.picks||[]).forEach((p,i)=>c.appendChild(buildCard(p,i)));
+  if(rec.budget_pick){
+    const bp=rec.budget_pick;
+    const e=document.createElement('div');e.className='budget-card fade-in';
+    e.innerHTML=`<div class="budget-label">💰 Best Budget Pick</div><div class="budget-name">${x(bp.name)}</div><div class="budget-price">${x(bp.price_range||'')}</div><div class="budget-why">${x(bp.why||'')}</div><div class="buy-row" style="margin-top:10px">${buyRow(bp.name)}</div>`;
+    c.appendChild(e);
+  }
+  if(rec.final_recommendation){const e=document.createElement('div');e.className='verdict-box success fade-in';e.innerHTML=`💡 <strong>Final Verdict:</strong> ${x(rec.final_recommendation)}`;c.appendChild(e);}
+  if(rec.avoid){const e=document.createElement('div');e.className='verdict-box warn fade-in';e.innerHTML=`⚠️ <strong>What to avoid:</strong> ${x(rec.avoid)}`;c.appendChild(e);}
+}
+
+function buildCard(p,i){
+  const el=document.createElement('div');
+  el.className='p-card fade-in'+(i===0?' is-top':'');
+  const rc=i===0?'rb-gold':i===1?'rb-silver':i===2?'rb-bronze':'rb-default';
+  const r=Math.max(0,Math.min(10,p.rating||0));
+  const fs=Math.round(r/2);
+  const stars='★'.repeat(fs)+'☆'.repeat(5-fs);
+  const pros=(p.pros||[]).map(v=>`<li>${x(v)}</li>`).join('');
+  const cons=(p.cons||[]).map(v=>`<li>${x(v)}</li>`).join('');
+  el.innerHTML=`
+    <div class="p-card-head">
+      <div class="p-rank-area"><div class="rank-badge ${rc}">${i+1}</div><div><div class="p-name">${x(p.name)}</div><div class="p-brand">${x(p.brand||'')}</div></div></div>
+      <div class="p-rating-wrap"><div class="p-stars">${stars}</div><div class="p-score">${r}/10</div></div>
+    </div>
+    <div class="p-card-body">
+      <div class="p-price">${x(p.price_range||'Price varies')}</div>
+      ${p.match_score?`<div class="p-match">🎯 ${p.match_score}% match</div>`:''}
+      <div class="pros-cons-grid"><div class="pros"><h5>✅ Pros</h5><ul>${pros}</ul></div><div class="cons"><h5>❌ Cons</h5><ul>${cons}</ul></div></div>
+      ${p.verdict?`<div class="p-verdict">${x(p.verdict)}</div>`:''}
+      ${p.best_for?`<div class="p-best-for">Best for: <strong>${x(p.best_for)}</strong></div>`:''}
+      ${buyRow(p.name)}
+    </div>`;
+  return el;
+}
+
+function buyRow(name){
+  const stores=Cfg.stores.filter(s=>s.active).slice(0,4);
+  if(!stores.length)return'';
+  const q=encodeURIComponent(name||'');
+  return`<div class="buy-row">${stores.map(s=>{const u=(s.searchUrl||s.url).replace('{q}',q).replace('{query}',q);return`<a href="${u}" target="_blank" class="buy-chip"><span class="buy-icon">${s.logo||'🛒'}</span>${x(s.name)}</a>`;}).join('')}</div>`;
+}
+
+// ══════════════════════════════════════════════════
+// ADMIN
+// ══════════════════════════════════════════════════
+function renderAdmin(){
+  document.getElementById('admin-body').innerHTML=`
+    <div class="adm-section">
+      <div class="adm-head"><div class="adm-head-title">🔑 API Keys</div></div>
+      <div class="adm-body">
+        <div class="f-group"><label>Anthropic API Key *</label><input type="password" id="ak-main" value="${x(Cfg.key)}" placeholder="sk-ant-..." autocomplete="off"></div>
+        <div class="f-group"><label>YouTube Data API Key (optional)</label><input type="password" id="ak-yt" value="${x(Cfg.ytKey)}" placeholder="AIza..."><div class="f-note">Enables live YouTube review search. Get it at <a href="https://console.developers.google.com" target="_blank">console.developers.google.com</a></div></div>
+        <div class="f-group"><label>Google Custom Search API Key (optional)</label><input type="password" id="ak-gg" value="${x(Cfg.ggKey)}" placeholder="AIza..."></div>
+        <div class="f-group"><label>Google Custom Search Engine ID</label><input id="ak-cx" value="${x(Cfg.ggCx)}" placeholder="017576662512..." autocomplete="off" autocorrect="off" spellcheck="false"><div class="f-note">Create at <a href="https://programmablesearchengine.google.com" target="_blank">programmablesearchengine.google.com</a></div></div>
+        <button class="btn btn-primary" onclick="saveKeys()">💾 Save Keys</button>
+      </div>
+    </div>
+    <div class="adm-section">
+      <div class="adm-head"><div class="adm-head-title">🛒 Buy Stores</div><button class="btn btn-primary btn-sm" onclick="showStoreForm()">+ Add</button></div>
+      <div class="adm-body" id="sl"></div>
+    </div>
+    <div class="adm-section">
+      <div class="adm-head"><div class="adm-head-title">📡 Review Channels</div><button class="btn btn-primary btn-sm" onclick="showChanForm()">+ Add</button></div>
+      <div class="adm-body" id="cl"></div>
+    </div>
+    <div class="adm-section">
+      <div class="adm-head"><div class="adm-head-title">🔄 Reset</div></div>
+      <div class="adm-body"><button class="btn btn-danger btn-sm" onclick="resetDefs()">Reset to defaults</button><div class="f-note" style="margin-top:8px">Restore the original review channels and stores list.</div></div>
+    </div>`;
+  renderSL();renderCL();
+}
+
+function saveKeys(){
+  Cfg.setKey(document.getElementById('ak-main').value.trim());
+  Cfg.setYtKey(document.getElementById('ak-yt').value.trim());
+  Cfg.setGgKey(document.getElementById('ak-gg').value.trim());
+  Cfg.setGgCx(document.getElementById('ak-cx').value.trim());
+  toast('Keys saved!','success');
+}
+
+function renderSL(){
+  const e=document.getElementById('sl');if(!e)return;
+  const s=Cfg.stores;
+  e.innerHTML=s.length?s.map((s,i)=>`<div class="list-row"><div class="list-info"><div class="list-name">${s.logo||'🛒'} ${x(s.name)}</div><div class="list-sub">${x(s.url)}</div></div><div class="list-actions"><button class="btn btn-ghost btn-sm" onclick="togStore(${i})">${s.active?'✓ On':'Off'}</button><button class="btn btn-danger btn-sm" onclick="delStore(${i})">✕</button></div></div>`).join(''):'<p style="color:#475569;font-size:13px">No stores.</p>';
+}
+function togStore(i){const s=Cfg.stores;s[i].active=!s[i].active;Cfg.setStores(s);renderSL();}
+function delStore(i){if(!confirm('Remove?'))return;const s=Cfg.stores;s.splice(i,1);Cfg.setStores(s);renderSL();}
+function showStoreForm(){
+  const e=document.getElementById('sl');if(document.getElementById('sf'))return;
+  e.insertAdjacentHTML('beforebegin',`<div id="sf" class="adm-body" style="border-bottom:1px solid #2d3f57">
+    <div class="f-group"><label>Name</label><input id="sf-n" placeholder="e.g. Amazon India"></div>
+    <div class="f-group"><label>URL</label><input id="sf-u" placeholder="https://..." type="url"></div>
+    <div class="f-group"><label>Search URL (use {q})</label><input id="sf-s" placeholder="https://amazon.in/s?k={q}"></div>
+    <div class="f-group"><label>Emoji Logo</label><input id="sf-l" placeholder="🛒" maxlength="4"></div>
+    <div class="f-row"><button class="btn btn-primary btn-sm" onclick="addStore()">Add</button><button class="btn btn-ghost btn-sm" onclick="document.getElementById('sf').remove()">Cancel</button></div>
+  </div>`);
+}
+function addStore(){
+  const n=document.getElementById('sf-n').value.trim(),u=document.getElementById('sf-u').value.trim();
+  if(!n||!u){toast('Name+URL required','error');return;}
+  const s=Cfg.stores;s.push({id:Date.now(),name:n,url:u,searchUrl:document.getElementById('sf-s').value.trim()||u,logo:document.getElementById('sf-l').value.trim()||'🛒',active:true});
+  Cfg.setStores(s);document.getElementById('sf')?.remove();renderSL();toast('Store added!','success');
+}
+
+function renderCL(){
+  const e=document.getElementById('cl');if(!e)return;
+  const c=Cfg.channels;
+  e.innerHTML=c.length?c.map((c,i)=>`<div class="list-row"><div class="list-info"><div class="list-name">${c.platform==='youtube'?'▶':'🔍'} ${x(c.name)}</div><div class="list-sub">${c.platform} · ${c.platform==='youtube'?(c.channelId||''):(c.site||'')}</div></div><div class="list-actions"><button class="btn btn-ghost btn-sm" onclick="togChan(${i})">${c.active?'✓ On':'Off'}</button><button class="btn btn-danger btn-sm" onclick="delChan(${i})">✕</button></div></div>`).join(''):'<p style="color:#475569;font-size:13px">No channels.</p>';
+}
+function togChan(i){const c=Cfg.channels;c[i].active=!c[i].active;Cfg.setChannels(c);renderCL();}
+function delChan(i){if(!confirm('Remove?'))return;const c=Cfg.channels;c.splice(i,1);Cfg.setChannels(c);renderCL();}
+function showChanForm(){
+  const e=document.getElementById('cl');if(document.getElementById('cf'))return;
+  e.insertAdjacentHTML('beforebegin',`<div id="cf" class="adm-body" style="border-bottom:1px solid #2d3f57">
+    <div class="f-group"><label>Name</label><input id="cf-n" placeholder="e.g. MKBHD"></div>
+    <div class="f-group"><label>Platform</label><select id="cf-p" onchange="toggleCFP()"><option value="youtube">YouTube</option><option value="google">Google</option></select></div>
+    <div id="cf-yw" class="f-group"><label>YouTube Channel ID</label><input id="cf-c" placeholder="UCBJy..." autocomplete="off"></div>
+    <div id="cf-gw" class="f-group" style="display:none"><label>Site Domain</label><input id="cf-s" placeholder="rtings.com" autocomplete="off"></div>
+    <div class="f-row"><button class="btn btn-primary btn-sm" onclick="addChan()">Add</button><button class="btn btn-ghost btn-sm" onclick="document.getElementById('cf').remove()">Cancel</button></div>
+  </div>`);
+}
+function toggleCFP(){const p=document.getElementById('cf-p').value;document.getElementById('cf-yw').style.display=p==='youtube'?'':'none';document.getElementById('cf-gw').style.display=p==='google'?'':'none';}
+function addChan(){
+  const n=document.getElementById('cf-n').value.trim();if(!n){toast('Name required','error');return;}
+  const p=document.getElementById('cf-p').value;
+  const c=Cfg.channels;c.push({id:Date.now(),name:n,platform:p,channelId:p==='youtube'?document.getElementById('cf-c').value.trim():null,site:p==='google'?document.getElementById('cf-s').value.trim():null,active:true});
+  Cfg.setChannels(c);document.getElementById('cf')?.remove();renderCL();toast('Channel added!','success');
+}
+
+function resetDefs(){if(!confirm('Reset to defaults?'))return;Cfg.setStores(DS);Cfg.setChannels(DC);renderAdmin();toast('Defaults restored','success');}
+
+// ══════════════════════════════════════════════════
+// NEW CHAT
+// ══════════════════════════════════════════════════
+function newChat(){
+  if(A.msgs.length&&!confirm('Start new chat?'))return;
+  A.msgs=[];A.req=null;A.picks=null;
+  document.getElementById('messages').innerHTML='';
+  document.getElementById('product-list').innerHTML='';
+  document.getElementById('picks-sub').textContent='Chat with TechRec to get personalised recommendations';
+  hideSearch();renderSugs();switchView('chat');welcome();
+}
+
+// ══════════════════════════════════════════════════
+// UI HELPERS
+// ══════════════════════════════════════════════════
+function bubble(role,txt){
+  const e=document.createElement('div');e.className=`msg ${role}`;
+  e.innerHTML=`<div class="bubble">${md(txt)}</div><div class="msg-meta">${ts()}</div>`;
+  document.getElementById('messages').appendChild(e);scrollBot();return e;
+}
+function setBubble(e,t){e.querySelector('.bubble').innerHTML=md(t);}
+function addTyping(){
+  const e=document.createElement('div');e.className='msg assistant';e.id='_t';
+  e.innerHTML='<div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+  document.getElementById('messages').appendChild(e);scrollBot();return e;
+}
+function showSearch(t){document.getElementById('search-bar-text').textContent=t;document.getElementById('search-bar').classList.add('show');scrollBot();}
+function updSearch(t){document.getElementById('search-bar-text').textContent=t;document.querySelector('#search-bar .mini-spin')?.remove();}
+function hideSearch(){document.getElementById('search-bar').classList.remove('show');}
+function scrollBot(){const v=document.getElementById('chat-view');v.scrollTop=v.scrollHeight;}
+function resizeInp(e){e.style.height='auto';e.style.height=Math.min(e.scrollHeight,100)+'px';}
+function ts(){return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
+function x(s){if(s==null)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function md(t){if(!t)return'';return t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*([^*\n]+?)\*/g,'<em>$1</em>').replace(/`([^`]+)`/g,'<code style="background:#0f172a;padding:1px 5px;border-radius:3px;font-size:12px">$1</code>').replace(/^[•\-\*] (.+)$/gm,'<li style="margin-left:14px;margin-bottom:2px">$1</li>').replace(/\n{2,}/g,'<br><br>').replace(/\n/g,'<br>');}
+function getJSON(txt,marker){const i=txt.indexOf(marker);if(i===-1)return null;const s=txt.indexOf('{',i+marker.length);if(s===-1)return null;let d=0,e=-1;for(let j=s;j<txt.length;j++){if(txt[j]==='{')d++;else if(txt[j]==='}'){d--;if(d===0){e=j+1;break;}}}if(e===-1)return null;try{return JSON.parse(txt.slice(s,e));}catch(_){return null;}}
+
+let _tt;
+function toast(msg,type='success'){const e=document.getElementById('toast');e.textContent=msg;e.className=type;clearTimeout(_tt);_tt=setTimeout(()=>e.className='',2500);}
+
+// ══════════════════════════════════════════════════
+// INPUT
+// ══════════════════════════════════════════════════
+document.getElementById('chat-input').addEventListener('input',function(){resizeInp(this);});
+document.getElementById('chat-input').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();handleSend();}});
+
+boot();
 </script>
 </body>
 </html>

@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>TechRec — Smart Product Advisor</title>
+<style>
+/* ── Reset & Base ─────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#0f172a;color:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;font-size:15px}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#334155;border-radius:2px}
+/* ── Layout ───────────────────────────────────────────────── */
+#app{display:flex;flex-direction:column;height:100vh}
+#header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#1e293b;border-bottom:1px solid #334155;flex-shrink:0}
+#header h1{font-size:18px;font-weight:700;background:linear-gradient(135deg,#6366f1,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header-actions{display:flex;gap:8px}
+#views{flex:1;overflow:hidden;position:relative}
+.view{position:absolute;inset:0;overflow-y:auto;display:none;padding-bottom:64px}
+.view.active{display:block}
+#nav{display:flex;background:#1e293b;border-top:1px solid #334155;flex-shrink:0}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0;background:none;border:none;color:#64748b;cursor:pointer;font-size:10px;transition:color .2s}
+.nav-btn.active{color:#6366f1}
+.nav-btn .icon{font-size:20px}
+/* ── Chat ─────────────────────────────────────────────────── */
+#chat-view{padding:16px 16px 0}
+#messages{display:flex;flex-direction:column;gap:12px;padding-bottom:8px}
+.msg{display:flex;flex-direction:column;max-width:85%;animation:fadeIn .2s ease}
+.msg.user{align-self:flex-end;align-items:flex-end}
+.msg.assistant{align-self:flex-start;align-items:flex-start}
+.bubble{padding:10px 14px;border-radius:16px;line-height:1.5;word-break:break-word;font-size:14px}
+.user .bubble{background:#6366f1;color:#fff;border-bottom-right-radius:4px}
+.assistant .bubble{background:#1e293b;color:#e2e8f0;border-bottom-left-radius:4px}
+.msg-time{font-size:10px;color:#64748b;margin-top:3px;padding:0 4px}
+.typing-indicator{display:flex;gap:4px;padding:12px 14px;background:#1e293b;border-radius:16px 16px 16px 4px}
+.dot{width:6px;height:6px;background:#6366f1;border-radius:50%;animation:bounce .8s infinite}
+.dot:nth-child(2){animation-delay:.15s}.dot:nth-child(3){animation-delay:.3s}
+#search-status{margin:12px 0;padding:12px;background:#0f172a;border:1px solid #334155;border-radius:12px;font-size:13px;color:#94a3b8;display:none}
+#search-status.visible{display:block}
+.search-step{display:flex;align-items:center;gap:8px;padding:4px 0}
+.search-step .step-icon{width:16px;text-align:center}
+/* ── Input Area ───────────────────────────────────────────── */
+#input-area{position:fixed;bottom:60px;left:0;right:0;padding:8px 12px;background:#1e293b;border-top:1px solid #334155;display:flex;gap:8px;align-items:flex-end}
+#msg-input{flex:1;background:#0f172a;border:1px solid #334155;border-radius:20px;padding:10px 16px;color:#f1f5f9;font-size:14px;resize:none;max-height:100px;min-height:40px;line-height:1.4;outline:none;font-family:inherit}
+#msg-input:focus{border-color:#6366f1}
+#send-btn{width:40px;height:40px;background:#6366f1;border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .2s}
+#send-btn:hover{background:#4f46e5}
+#send-btn:disabled{background:#334155;cursor:not-allowed}
+#send-btn svg{width:18px;height:18px;fill:#fff}
+/* ── Picks View ───────────────────────────────────────────── */
+#picks-view{padding:16px}
+.picks-header{text-align:center;padding:16px 0;border-bottom:1px solid #334155;margin-bottom:16px}
+.picks-header h2{font-size:20px;font-weight:700;color:#f1f5f9}
+.picks-header p{font-size:13px;color:#64748b;margin-top:4px}
+.empty-picks{text-align:center;padding:60px 20px;color:#64748b}
+.empty-picks .empty-icon{font-size:48px;margin-bottom:16px}
+.product-card{background:#1e293b;border-radius:16px;margin-bottom:16px;overflow:hidden;border:1px solid #334155;transition:border-color .2s}
+.product-card.top-pick{border-color:#6366f1}
+.card-header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #334155}
+.card-rank{display:flex;align-items:center;gap:8px}
+.rank-badge{width:28px;height:28px;border-radius:50%;background:#6366f1;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.rank-badge.gold{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.rank-badge.silver{background:linear-gradient(135deg,#94a3b8,#64748b)}
+.rank-badge.bronze{background:linear-gradient(135deg,#b45309,#92400e)}
+.card-name{font-size:15px;font-weight:600;color:#f1f5f9}
+.card-brand{font-size:12px;color:#6366f1;margin-top:2px}
+.card-rating{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.rating-stars{font-size:13px;color:#f59e0b}
+.rating-num{font-size:12px;color:#64748b}
+.card-body{padding:14px 16px}
+.card-price{font-size:16px;font-weight:700;color:#10b981;margin-bottom:12px}
+.card-match{display:inline-block;background:#0f172a;border-radius:20px;padding:3px 10px;font-size:11px;color:#6366f1;margin-bottom:12px}
+.pros-cons{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.pros h4{color:#10b981;font-size:12px;font-weight:600;margin-bottom:6px}
+.cons h4{color:#f87171;font-size:12px;font-weight:600;margin-bottom:6px}
+.pros li,.cons li{font-size:12px;color:#94a3b8;margin-left:14px;margin-bottom:3px;line-height:1.4}
+.card-verdict{font-size:13px;color:#94a3b8;line-height:1.5;padding:10px;background:#0f172a;border-radius:8px;margin-bottom:12px}
+.card-best-for{font-size:12px;color:#64748b;margin-bottom:12px}
+.card-best-for span{color:#f1f5f9;font-weight:500}
+.buy-buttons{display:flex;flex-wrap:wrap;gap:8px}
+.buy-btn{display:flex;align-items:center;gap:6px;padding:7px 12px;background:#0f172a;border:1px solid #334155;border-radius:8px;color:#f1f5f9;text-decoration:none;font-size:12px;cursor:pointer;transition:border-color .2s}
+.buy-btn:hover{border-color:#6366f1}
+.buy-btn .store-logo{font-size:14px}
+.budget-badge{display:inline-flex;align-items:center;gap:6px;background:#0f172a;border:1px solid #10b981;border-radius:20px;padding:4px 12px;font-size:12px;color:#10b981;margin-bottom:16px}
+/* ── Admin View ───────────────────────────────────────────── */
+#admin-view{padding:16px}
+.admin-section{background:#1e293b;border-radius:16px;margin-bottom:16px;overflow:hidden;border:1px solid #334155}
+.admin-section-header{padding:14px 16px;font-size:14px;font-weight:600;color:#f1f5f9;border-bottom:1px solid #334155;display:flex;align-items:center;justify-content:space-between}
+.admin-section-body{padding:16px}
+.form-group{margin-bottom:12px}
+.form-group label{display:block;font-size:12px;color:#64748b;margin-bottom:4px;font-weight:500}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:#0f172a;border:1px solid #334155;border-radius:8px;padding:8px 12px;color:#f1f5f9;font-size:14px;outline:none;font-family:inherit}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#6366f1}
+.form-group textarea{resize:vertical;min-height:60px}
+.btn{padding:9px 16px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:500;transition:background .2s}
+.btn-primary{background:#6366f1;color:#fff}.btn-primary:hover{background:#4f46e5}
+.btn-danger{background:#ef4444;color:#fff}.btn-danger:hover{background:#dc2626}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-ghost{background:none;border:1px solid #334155;color:#94a3b8}.btn-ghost:hover{border-color:#6366f1;color:#6366f1}
+.list-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1e293b}
+.list-item:last-child{border-bottom:none}
+.list-item-name{font-size:14px;color:#f1f5f9;font-weight:500}
+.list-item-sub{font-size:12px;color:#64748b;margin-top:2px}
+.list-item-actions{display:flex;gap:6px}
+.toggle{position:relative;width:36px;height:20px;cursor:pointer}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:#334155;border-radius:20px;transition:.3s}
+.toggle-slider:before{content:'';position:absolute;width:14px;height:14px;left:3px;bottom:3px;background:#94a3b8;border-radius:50%;transition:.3s}
+.toggle input:checked+.toggle-slider{background:#6366f1}
+.toggle input:checked+.toggle-slider:before{transform:translateX(16px);background:#fff}
+/* ── Settings Panel ───────────────────────────────────────── */
+#setup-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
+.modal-card{background:#1e293b;border-radius:20px;width:100%;max-width:400px;overflow:hidden;border:1px solid #334155}
+.modal-header{padding:20px 20px 0;text-align:center}
+.modal-header h2{font-size:22px;font-weight:700;background:linear-gradient(135deg,#6366f1,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.modal-header p{font-size:13px;color:#64748b;margin-top:6px}
+.modal-body{padding:20px}
+.modal-footer{padding:0 20px 20px;display:flex;flex-direction:column;gap:8px}
+/* ── Utility ──────────────────────────────────────────────── */
+.chip{display:inline-block;background:#0f172a;border:1px solid #334155;border-radius:20px;padding:4px 12px;font-size:12px;color:#94a3b8;margin:2px}
+.chip.active{border-color:#6366f1;color:#6366f1;background:#1e1f5e22}
+.icon-btn{width:32px;height:32px;background:none;border:1px solid #334155;border-radius:8px;cursor:pointer;color:#94a3b8;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .2s}
+.icon-btn:hover{border-color:#6366f1;color:#6366f1}
+.alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px}
+.alert-info{background:#1e293b;border:1px solid #334155;color:#94a3b8}
+.alert-success{background:#022c22;border:1px solid #10b981;color:#10b981}
+.alert-error{background:#2d1515;border:1px solid #ef4444;color:#ef4444}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:18px;height:18px;border:2px solid #334155;border-top-color:#6366f1;border-radius:50%;animation:spin 1s linear infinite;display:inline-block}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Header -->
+  <div id="header">
+    <h1>🔍 TechRec</h1>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="newChat()" title="New chat">✦</button>
+    </div>
+  </div>
+
+  <!-- Views -->
+  <div id="views">
+
+    <!-- Chat View -->
+    <div id="chat-view" class="view active">
+      <div id="messages"></div>
+      <div id="search-status"></div>
+    </div>
+
+    <!-- Picks View -->
+    <div id="picks-view" class="view">
+      <div class="picks-header">
+        <h2>🏆 Top Picks</h2>
+        <p id="picks-subtitle">Your personalised recommendations will appear here</p>
+      </div>
+      <div id="product-cards"></div>
+    </div>
+
+    <!-- Admin View -->
+    <div id="admin-view" class="view">
+      <div id="admin-content"></div>
+    </div>
+
+  </div>
+
+  <!-- Input -->
+  <div id="input-area">
+    <textarea id="msg-input" placeholder="Tell me what you're looking for…" rows="1"></textarea>
+    <button id="send-btn" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav id="nav">
+    <button class="nav-btn active" id="nav-chat" onclick="showView('chat')">
+      <span class="icon">💬</span>Chat
+    </button>
+    <button class="nav-btn" id="nav-picks" onclick="showView('picks')">
+      <span class="icon">🏆</span>Picks
+    </button>
+    <button class="nav-btn" id="nav-admin" onclick="showView('admin')">
+      <span class="icon">⚙️</span>Admin
+    </button>
+  </nav>
+
+</div>
+
+<!-- Setup Modal -->
+<div id="setup-modal" style="display:none">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2>🔍 TechRec</h2>
+      <p>AI-powered product advisor. Enter your Anthropic API key to get started.</p>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Anthropic API Key *</label>
+        <input type="password" id="setup-api-key" placeholder="sk-ant-..." autocomplete="off">
+      </div>
+      <p style="font-size:12px;color:#64748b;line-height:1.6">
+        Your key is stored only in this browser/device. Get one at
+        <a href="https://console.anthropic.com" target="_blank" style="color:#6366f1">console.anthropic.com</a>.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="saveSetup()">Get Started</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────────
+const S = {
+  sessionId: '',
+  messages: [],      // {role, content}
+  requirements: null,
+  recommendations: null,
+  stores: [],
+  isTyping: false,
+  currentView: 'chat',
+};
+
+// ── Config (server-side session via fetch) ────────────────────────────────────
+const API_KEY = () => localStorage.getItem('tr_apikey') || '';
+const YT_KEY  = () => localStorage.getItem('tr_ytkey')  || '';
+const GG_KEY  = () => localStorage.getItem('tr_ggkey')  || '';
+const GG_CX   = () => localStorage.getItem('tr_ggcx')   || '';
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+async function boot() {
+  if (!API_KEY()) {
+    document.getElementById('setup-modal').style.display = 'flex';
+    return;
+  }
+  await startSession();
+  loadStores();
+  showWelcome();
+  renderAdmin();
+}
+
+async function startSession() {
+  try {
+    const r = await fetch('/api/session', { method: 'POST' });
+    const d = await r.json();
+    S.sessionId = d.session_id;
+  } catch(e) { console.warn('Session error', e); }
+}
+
+async function loadStores() {
+  try {
+    const r = await fetch('/api/stores');
+    S.stores = await r.json();
+  } catch(e) { S.stores = []; }
+}
+
+function saveSetup() {
+  const key = document.getElementById('setup-api-key').value.trim();
+  if (!key.startsWith('sk-')) {
+    alert('Please enter a valid Anthropic API key (starts with sk-)');
+    return;
+  }
+  localStorage.setItem('tr_apikey', key);
+  document.getElementById('setup-modal').style.display = 'none';
+  boot();
+}
+
+function showWelcome() {
+  addAssistantBubble(`👋 Hi! I'm **TechRec**, your AI product advisor.
+
+Tell me what you're looking for in plain English — like:
+• *"I want a gaming laptop, budget 50k"*
+• *"Best smartphone under ₹20,000 for camera"*
+• *"Noise-cancelling headphones for travel, around $200"*
+
+I'll ask a few questions to narrow it down, then find the best options! 🎯`);
+}
+
+// ── Views ─────────────────────────────────────────────────────────────────────
+function showView(v) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById(v + '-view').classList.add('active');
+  document.getElementById('nav-' + v).classList.add('active');
+  S.currentView = v;
+  document.getElementById('input-area').style.display = v === 'chat' ? 'flex' : 'none';
+  if (v === 'admin') renderAdmin();
+}
+
+// ── Chat ──────────────────────────────────────────────────────────────────────
+async function sendMessage() {
+  const input = document.getElementById('msg-input');
+  const text = input.value.trim();
+  if (!text || S.isTyping) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  addUserBubble(text);
+  S.messages.push({ role: 'user', content: text });
+
+  await streamChat(text);
+}
+
+async function streamChat(userMsg) {
+  S.isTyping = true;
+  document.getElementById('send-btn').disabled = true;
+  showTypingIndicator();
+
+  let buffer = '';
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        session_id: S.sessionId,
+        message: userMsg,
+        api_key: API_KEY(),
+      }),
+    });
+
+    removeTypingIndicator();
+    const bubbleEl = addAssistantBubble('');
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let partial = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      partial += decoder.decode(value, { stream: true });
+      const lines = partial.split('\n');
+      partial = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data:')) continue;
+        try {
+          const d = JSON.parse(line.slice(5).trim());
+          if (d.chunk) {
+            buffer += d.chunk;
+            bubbleEl.querySelector('.bubble').innerHTML = markdownToHtml(
+              buffer.split('REQUIREMENTS_READY:')[0].trim()
+            );
+            scrollToBottom();
+          }
+          if (d.done) {
+            S.messages.push({ role: 'assistant', content: buffer.split('REQUIREMENTS_READY:')[0].trim() });
+            if (d.requirements) {
+              S.requirements = d.requirements;
+              onRequirementsReady(d.requirements);
+            }
+          }
+          if (d.error) {
+            bubbleEl.querySelector('.bubble').innerHTML = `<span style="color:#f87171">Error: ${d.error}</span>`;
+          }
+        } catch(_) {}
+      }
+    }
+  } catch(e) {
+    removeTypingIndicator();
+    addAssistantBubble(`Sorry, something went wrong: ${e.message}`);
+  } finally {
+    S.isTyping = false;
+    document.getElementById('send-btn').disabled = false;
+    scrollToBottom();
+  }
+}
+
+async function onRequirementsReady(req) {
+  showSearchStatus('Searching trusted tech review channels…');
+  try {
+    const [ytRes, ggRes] = await Promise.allSettled([
+      searchYouTube(req.search_query || req.category + ' ' + req.use_case + ' review'),
+      searchGoogle(req.search_query || req.category + ' ' + req.use_case + ' review'),
+    ]);
+    const searchResults = {
+      youtube: ytRes.status === 'fulfilled' ? ytRes.value : [],
+      google:  ggRes.status === 'fulfilled' ? ggRes.value : [],
+    };
+    const total = searchResults.youtube.length + searchResults.google.length;
+    updateSearchStatus(`Found ${total} review sources. Generating recommendations…`);
+    await generateRecommendations(searchResults);
+  } catch(e) {
+    hideSearchStatus();
+    addAssistantBubble('Could not fetch search results. Generating recommendations based on my knowledge…');
+    await generateRecommendations({});
+  }
+}
+
+async function searchYouTube(query) {
+  if (!YT_KEY()) return [];
+  try {
+    const r = await fetch('/api/search/youtube', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, youtube_api_key: YT_KEY() }),
+    });
+    const d = await r.json();
+    return d.results || [];
+  } catch(_) { return []; }
+}
+
+async function searchGoogle(query) {
+  if (!GG_KEY() || !GG_CX()) return [];
+  try {
+    const r = await fetch('/api/search/google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, google_api_key: GG_KEY(), google_cx: GG_CX() }),
+    });
+    const d = await r.json();
+    return d.results || [];
+  } catch(_) { return []; }
+}
+
+async function generateRecommendations(searchResults) {
+  try {
+    const res = await fetch('/api/recommend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        session_id: S.sessionId,
+        search_results: searchResults,
+        api_key: API_KEY(),
+      }),
+    });
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let partial = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      partial += decoder.decode(value, { stream: true });
+      const lines = partial.split('\n');
+      partial = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data:')) continue;
+        try {
+          const d = JSON.parse(line.slice(5).trim());
+          if (d.done && d.recommendations) {
+            S.recommendations = d.recommendations;
+            S.stores = d.stores || S.stores;
+            hideSearchStatus();
+            renderPicks(d.recommendations);
+            addAssistantBubble(`✅ I've found your top picks! Tap **Picks** below to see the full breakdown with buy links.`);
+            showView('picks');
+          }
+        } catch(_) {}
+      }
+    }
+  } catch(e) {
+    hideSearchStatus();
+    addAssistantBubble(`Could not generate recommendations: ${e.message}`);
+  }
+}
+
+// ── Picks Rendering ───────────────────────────────────────────────────────────
+function renderPicks(rec) {
+  if (!rec) return;
+  const container = document.getElementById('product-cards');
+  const sub = document.getElementById('picks-subtitle');
+
+  container.innerHTML = '';
+  sub.textContent = rec.summary || '';
+
+  if (rec.picks && rec.picks.length) {
+    rec.picks.forEach((p, i) => {
+      container.appendChild(buildProductCard(p, i));
+    });
+  }
+
+  if (rec.budget_pick) {
+    const bp = document.createElement('div');
+    bp.className = 'product-card';
+    bp.style.border = '1px solid #10b981';
+    bp.innerHTML = `
+      <div class="card-header">
+        <div class="card-rank">
+          <span style="font-size:20px">💰</span>
+          <div>
+            <div class="card-name">${esc(rec.budget_pick.name)}</div>
+            <div class="card-brand">Best Budget Pick</div>
+          </div>
+        </div>
+        <div class="card-price">${esc(rec.budget_pick.price_range || '')}</div>
+      </div>
+      <div class="card-body">
+        <p style="font-size:13px;color:#94a3b8;line-height:1.5">${esc(rec.budget_pick.why || '')}</p>
+        ${buildBuyButtons(rec.budget_pick.name)}
+      </div>`;
+    container.appendChild(bp);
+  }
+
+  if (rec.final_recommendation) {
+    const fr = document.createElement('div');
+    fr.className = 'alert alert-success';
+    fr.style.margin = '0 0 16px';
+    fr.innerHTML = `💡 <strong>Final Verdict:</strong> ${esc(rec.final_recommendation)}`;
+    container.appendChild(fr);
+  }
+
+  if (rec.avoid) {
+    const av = document.createElement('div');
+    av.className = 'alert alert-info';
+    av.style.margin = '0 0 16px';
+    av.innerHTML = `⚠️ <strong>What to avoid:</strong> ${esc(rec.avoid)}`;
+    container.appendChild(av);
+  }
+}
+
+function buildProductCard(p, index) {
+  const card = document.createElement('div');
+  card.className = 'product-card' + (index === 0 ? ' top-pick' : '');
+  const badgeClass = index === 0 ? 'gold' : index === 1 ? 'silver' : 'bronze';
+  const stars = '★'.repeat(Math.round(p.rating || 0)) + '☆'.repeat(5 - Math.round(p.rating || 0));
+  const pros = (p.pros || []).map(pr => `<li>${esc(pr)}</li>`).join('');
+  const cons = (p.cons || []).map(c => `<li>${esc(c)}</li>`).join('');
+
+  card.innerHTML = `
+    <div class="card-header">
+      <div class="card-rank">
+        <div class="rank-badge ${badgeClass}">${index + 1}</div>
+        <div>
+          <div class="card-name">${esc(p.name)}</div>
+          <div class="card-brand">${esc(p.brand || '')}</div>
+        </div>
+      </div>
+      <div class="card-rating">
+        <div class="rating-stars">${stars}</div>
+        <div class="rating-num">${p.rating || 0}/10</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="card-price">${esc(p.price_range || 'Price varies')}</div>
+      ${p.match_score ? `<div class="card-match">🎯 ${p.match_score}% match</div>` : ''}
+      <div class="pros-cons">
+        <div class="pros"><h4>✅ Pros</h4><ul>${pros}</ul></div>
+        <div class="cons"><h4>❌ Cons</h4><ul>${cons}</ul></div>
+      </div>
+      ${p.verdict ? `<div class="card-verdict">${esc(p.verdict)}</div>` : ''}
+      ${p.best_for ? `<div class="card-best-for">Best for: <span>${esc(p.best_for)}</span></div>` : ''}
+      ${buildBuyButtons(p.name)}
+    </div>`;
+  return card;
+}
+
+function buildBuyButtons(productName) {
+  if (!S.stores.length) return '';
+  const query = encodeURIComponent(productName);
+  const buttons = S.stores.slice(0, 4).map(s => {
+    const url = (s.search_url_template || s.url).replace('{query}', query);
+    return `<a href="${url}" target="_blank" class="buy-btn">
+      <span class="store-logo">${s.logo || '🛒'}</span>${esc(s.name)}
+    </a>`;
+  }).join('');
+  return `<div class="buy-buttons">${buttons}</div>`;
+}
+
+// ── Admin View ────────────────────────────────────────────────────────────────
+async function renderAdmin() {
+  const el = document.getElementById('admin-content');
+  el.innerHTML = `
+    <!-- API Keys -->
+    <div class="admin-section">
+      <div class="admin-section-header">🔑 API Keys</div>
+      <div class="admin-section-body">
+        <div class="alert alert-info">Keys are stored in browser storage. Never share them.</div>
+        <div class="form-group">
+          <label>Anthropic API Key *</label>
+          <input type="password" id="adm-apikey" value="${esc(API_KEY())}" placeholder="sk-ant-...">
+        </div>
+        <div class="form-group">
+          <label>YouTube Data API Key (optional)</label>
+          <input type="password" id="adm-ytkey" value="${esc(YT_KEY())}" placeholder="AIza...">
+          <small style="color:#64748b;font-size:11px">Enables live YouTube review search</small>
+        </div>
+        <div class="form-group">
+          <label>Google Custom Search API Key (optional)</label>
+          <input type="password" id="adm-ggkey" value="${esc(GG_KEY())}" placeholder="AIza...">
+        </div>
+        <div class="form-group">
+          <label>Google Custom Search Engine ID (CX)</label>
+          <input type="text" id="adm-ggcx" value="${esc(GG_CX())}" placeholder="abc123...">
+        </div>
+        <button class="btn btn-primary" onclick="saveAdminKeys()">Save Keys</button>
+      </div>
+    </div>
+
+    <!-- Stores -->
+    <div class="admin-section" id="adm-stores-section">
+      <div class="admin-section-header">
+        🛒 Buy Stores
+        <button class="btn btn-primary btn-sm" onclick="showAddStore()">+ Add</button>
+      </div>
+      <div class="admin-section-body" id="adm-stores-list">
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+    <!-- Channels -->
+    <div class="admin-section" id="adm-channels-section">
+      <div class="admin-section-header">
+        📡 Review Channels
+        <button class="btn btn-primary btn-sm" onclick="showAddChannel()">+ Add</button>
+      </div>
+      <div class="admin-section-body" id="adm-channels-list">
+        <div class="spinner"></div>
+      </div>
+    </div>
+  `;
+
+  loadAdminStores();
+  loadAdminChannels();
+}
+
+function saveAdminKeys() {
+  localStorage.setItem('tr_apikey', document.getElementById('adm-apikey').value.trim());
+  localStorage.setItem('tr_ytkey',  document.getElementById('adm-ytkey').value.trim());
+  localStorage.setItem('tr_ggkey',  document.getElementById('adm-ggkey').value.trim());
+  localStorage.setItem('tr_ggcx',   document.getElementById('adm-ggcx').value.trim());
+  showToast('Keys saved!');
+}
+
+async function loadAdminStores() {
+  const el = document.getElementById('adm-stores-list');
+  try {
+    const r = await fetch('/admin/stores');
+    if (r.status === 401) { el.innerHTML = '<p style="color:#64748b;font-size:13px">Admin login required</p>'; return; }
+    const stores = await r.json();
+    el.innerHTML = stores.length ? stores.map(s => `
+      <div class="list-item">
+        <div>
+          <div class="list-item-name">${s.logo} ${esc(s.name)}</div>
+          <div class="list-item-sub">${esc(s.url)}</div>
+        </div>
+        <div class="list-item-actions">
+          <button class="btn btn-sm btn-danger" onclick="deleteStore(${s.id})">✕</button>
+        </div>
+      </div>`).join('') : '<p style="color:#64748b;font-size:13px">No stores yet.</p>';
+  } catch(e) { el.innerHTML = '<p style="color:#f87171;font-size:13px">Could not load stores.</p>'; }
+}
+
+async function loadAdminChannels() {
+  const el = document.getElementById('adm-channels-list');
+  try {
+    const r = await fetch('/admin/channels');
+    if (r.status === 401) { el.innerHTML = '<p style="color:#64748b;font-size:13px">Admin login required</p>'; return; }
+    const channels = await r.json();
+    el.innerHTML = channels.length ? channels.map(c => `
+      <div class="list-item">
+        <div>
+          <div class="list-item-name">${c.platform === 'youtube' ? '▶' : '🔍'} ${esc(c.name)}</div>
+          <div class="list-item-sub">${c.platform} · ${c.platform === 'youtube' ? c.channel_id || '' : c.site_search || ''}</div>
+        </div>
+        <div class="list-item-actions">
+          <button class="btn btn-sm btn-danger" onclick="deleteChannel(${c.id})">✕</button>
+        </div>
+      </div>`).join('') : '<p style="color:#64748b;font-size:13px">No channels yet.</p>';
+  } catch(e) { el.innerHTML = '<p style="color:#f87171;font-size:13px">Could not load channels.</p>'; }
+}
+
+function showAddStore() {
+  const el = document.getElementById('adm-stores-list');
+  el.insertAdjacentHTML('afterbegin', `
+    <div id="add-store-form" style="padding:12px 0;border-bottom:1px solid #334155;margin-bottom:12px">
+      <div class="form-group"><label>Store Name</label><input id="ns-name" placeholder="e.g. Amazon India"></div>
+      <div class="form-group"><label>URL</label><input id="ns-url" placeholder="https://..."></div>
+      <div class="form-group"><label>Search URL Template</label><input id="ns-search" placeholder="https://store.com/search?q={query}"></div>
+      <div class="form-group"><label>Emoji Logo</label><input id="ns-logo" placeholder="🛒" maxlength="4"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary btn-sm" onclick="addStore()">Add</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('add-store-form').remove()">Cancel</button>
+      </div>
+    </div>`);
+}
+
+async function addStore() {
+  const data = {
+    name: document.getElementById('ns-name').value.trim(),
+    url: document.getElementById('ns-url').value.trim(),
+    search_url_template: document.getElementById('ns-search').value.trim(),
+    logo: document.getElementById('ns-logo').value.trim() || '🛒',
+    active: 1,
+  };
+  if (!data.name || !data.url) { alert('Name and URL required'); return; }
+  await fetch('/admin/stores', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+  loadAdminStores();
+  loadStores();
+}
+
+async function deleteStore(id) {
+  if (!confirm('Delete this store?')) return;
+  await fetch(`/admin/stores/${id}`, { method: 'DELETE' });
+  loadAdminStores();
+  loadStores();
+}
+
+function showAddChannel() {
+  const el = document.getElementById('adm-channels-list');
+  el.insertAdjacentHTML('afterbegin', `
+    <div id="add-ch-form" style="padding:12px 0;border-bottom:1px solid #334155;margin-bottom:12px">
+      <div class="form-group"><label>Channel Name</label><input id="nc-name" placeholder="e.g. MKBHD"></div>
+      <div class="form-group">
+        <label>Platform</label>
+        <select id="nc-platform" onchange="toggleChFields()">
+          <option value="youtube">YouTube</option>
+          <option value="google">Google (site search)</option>
+        </select>
+      </div>
+      <div id="nc-yt-fields" class="form-group"><label>YouTube Channel ID</label><input id="nc-chid" placeholder="UCBJy..."></div>
+      <div id="nc-gg-fields" class="form-group" style="display:none"><label>Site Domain</label><input id="nc-site" placeholder="rtings.com"></div>
+      <div class="form-group"><label>Categories (comma-separated)</label><input id="nc-cats" placeholder="laptops, smartphones"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary btn-sm" onclick="addChannel()">Add</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('add-ch-form').remove()">Cancel</button>
+      </div>
+    </div>`);
+}
+
+function toggleChFields() {
+  const p = document.getElementById('nc-platform').value;
+  document.getElementById('nc-yt-fields').style.display = p === 'youtube' ? '' : 'none';
+  document.getElementById('nc-gg-fields').style.display = p === 'google' ? '' : 'none';
+}
+
+async function addChannel() {
+  const platform = document.getElementById('nc-platform').value;
+  const cats = document.getElementById('nc-cats').value.split(',').map(s => s.trim()).filter(Boolean);
+  const data = {
+    name: document.getElementById('nc-name').value.trim(),
+    platform,
+    channel_id: platform === 'youtube' ? document.getElementById('nc-chid').value.trim() : null,
+    site_search: platform === 'google' ? document.getElementById('nc-site').value.trim() : null,
+    categories: cats,
+    active: 1,
+  };
+  if (!data.name) { alert('Name required'); return; }
+  await fetch('/admin/channels', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+  loadAdminChannels();
+}
+
+async function deleteChannel(id) {
+  if (!confirm('Delete this channel?')) return;
+  await fetch(`/admin/channels/${id}`, { method: 'DELETE' });
+  loadAdminChannels();
+}
+
+// ── New Chat ──────────────────────────────────────────────────────────────────
+async function newChat() {
+  if (!confirm('Start a new conversation?')) return;
+  if (S.sessionId) {
+    try { await fetch(`/api/session/${S.sessionId}`, { method: 'DELETE' }); } catch(_) {}
+  }
+  S.messages = [];
+  S.requirements = null;
+  S.recommendations = null;
+  document.getElementById('messages').innerHTML = '';
+  document.getElementById('product-cards').innerHTML = '';
+  document.getElementById('picks-subtitle').textContent = 'Your personalised recommendations will appear here';
+  await startSession();
+  showWelcome();
+  showView('chat');
+}
+
+// ── UI Helpers ────────────────────────────────────────────────────────────────
+function addUserBubble(text) {
+  const msgs = document.getElementById('messages');
+  const el = document.createElement('div');
+  el.className = 'msg user';
+  el.innerHTML = `<div class="bubble">${esc(text)}</div><div class="msg-time">${now()}</div>`;
+  msgs.appendChild(el);
+  scrollToBottom();
+  return el;
+}
+
+function addAssistantBubble(text) {
+  const msgs = document.getElementById('messages');
+  const el = document.createElement('div');
+  el.className = 'msg assistant';
+  el.innerHTML = `<div class="bubble">${markdownToHtml(text)}</div><div class="msg-time">${now()}</div>`;
+  msgs.appendChild(el);
+  scrollToBottom();
+  return el;
+}
+
+function showTypingIndicator() {
+  removeTypingIndicator();
+  const msgs = document.getElementById('messages');
+  const el = document.createElement('div');
+  el.className = 'msg assistant';
+  el.id = 'typing-indicator';
+  el.innerHTML = `<div class="typing-indicator"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+  msgs.appendChild(el);
+  scrollToBottom();
+}
+
+function removeTypingIndicator() {
+  const el = document.getElementById('typing-indicator');
+  if (el) el.remove();
+}
+
+function showSearchStatus(text) {
+  const el = document.getElementById('search-status');
+  el.className = 'search-status visible';
+  el.innerHTML = `<div class="search-step"><span class="step-icon"><div class="spinner"></div></span>${esc(text)}</div>`;
+  scrollToBottom();
+}
+
+function updateSearchStatus(text) {
+  const el = document.getElementById('search-status');
+  el.innerHTML = `<div class="search-step"><span class="step-icon">✅</span>${esc(text)}</div>`;
+  scrollToBottom();
+}
+
+function hideSearchStatus() {
+  const el = document.getElementById('search-status');
+  el.className = 'search-status';
+}
+
+function scrollToBottom() {
+  const v = document.getElementById('chat-view');
+  v.scrollTop = v.scrollHeight;
+}
+
+function now() {
+  return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function markdownToHtml(text) {
+  if (!text) return '';
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`(.+?)`/g, '<code style="background:#0f172a;padding:1px 5px;border-radius:4px">$1</code>')
+    .replace(/^• (.+)$/gm, '<li style="margin-left:16px">$1</li>')
+    .replace(/^[\-\*] (.+)$/gm, '<li style="margin-left:16px">$1</li>')
+    .replace(/\n/g, '<br>');
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#10b981;color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;z-index:999';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2000);
+}
+
+// ── Input Auto-resize ─────────────────────────────────────────────────────────
+document.getElementById('msg-input').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+});
+
+document.getElementById('msg-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+boot();
+</script>
+</body>
+</html>

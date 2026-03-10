@@ -1,141 +1,215 @@
-"""Claude AI integration for entrepreneurial opportunity mapping."""
+#!/usr/bin/env python3
+"""
+Claude API integration for TechRec — AI Product Recommendation App.
+
+Uses claude-opus-4-6 with adaptive thinking for intelligent
+product requirement gathering and recommendation generation.
+"""
 
 import os
+import json
 import anthropic
 from dotenv import load_dotenv
 
 load_dotenv()
 
-_client = None
+SYSTEM_PROMPT = """You are TechRec, an expert AI product advisor that helps users find the best tech products.
+
+## Your Personality
+- Friendly, knowledgeable, and concise
+- Ask smart follow-up questions ONE at a time
+- Be direct — don't pad responses with unnecessary text
+
+## Conversation Flow
+
+**Phase 1 — Understand the need:**
+When a user expresses a product need, identify:
+- Product category (laptop, smartphone, headphones, TV, etc.)
+- Use case (gaming, work, college, content creation, etc.)
+- Budget (parse naturally: "50k"=50,000 | "2 lakhs"=200,000 | "$500"=500 USD)
+
+**Phase 2 — Narrow down (max 4 questions, one at a time):**
+Ask focused questions to clarify:
+- Performance level needed
+- Portability / size preference
+- Must-have features
+- Brand preference (if any)
+- Specific pain points or previous device issues
+
+**Phase 3 — Signal readiness:**
+When you have enough information (after gathering category + use case + budget + 2-3 key specs), output this EXACT block at the end of your message:
+
+```
+REQUIREMENTS_READY:{
+  "category": "laptop",
+  "use_case": "gaming at college",
+  "budget_amount": 50000,
+  "budget_currency": "INR",
+  "budget_display": "₹50,000",
+  "key_requirements": ["gaming GPU", "portable 15 inch", "good battery"],
+  "preferences": {"portability": "important", "display": "15 inch"},
+  "search_query": "gaming laptop under 50000 review 2024"
+}
+```
+
+**Phase 4 — After search results provided:**
+Analyze the provided review data and recommend products. Structure your response as:
+
+```
+RECOMMENDATIONS_JSON:{
+  "summary": "2-sentence overview of the recommendation",
+  "picks": [
+    {
+      "rank": 1,
+      "name": "Full Product Name",
+      "brand": "Brand",
+      "price_range": "₹45,000–₹52,000",
+      "rating": 8.5,
+      "match_score": 95,
+      "pros": ["Pro 1", "Pro 2", "Pro 3"],
+      "cons": ["Con 1", "Con 2"],
+      "best_for": "One line description of ideal user",
+      "verdict": "Why this is ranked here"
+    }
+  ],
+  "budget_pick": {
+    "name": "Budget Product Name",
+    "price_range": "₹38,000–₹42,000",
+    "why": "Why it's a great budget option"
+  },
+  "avoid": "Product or brands to avoid and why",
+  "final_recommendation": "1-2 sentence closing recommendation"
+}
+```
+
+## Rules
+- Never recommend more than 5 products
+- Always include a budget pick if one exists
+- Include real model names (e.g., "ASUS TUF Gaming F15 FX506LH", not just "ASUS laptop")
+- Mention availability in the user's region
+- If no search data is provided, use your training knowledge but note it may not be current
+"""
 
 
-def get_client() -> anthropic.Anthropic:
-    global _client
-    if _client is None:
-        api_key = os.getenv("ANTHROPIC_API_KEY")
-        if not api_key:
-            raise RuntimeError(
-                "ANTHROPIC_API_KEY not set. Copy .env.example to .env and add your key."
-            )
-        _client = anthropic.Anthropic(api_key=api_key)
-    return _client
+def _client() -> anthropic.Anthropic:
+    api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        raise RuntimeError("ANTHROPIC_API_KEY not set")
+    return anthropic.Anthropic(api_key=api_key)
 
 
-def _build_my_profile() -> str:
-    parts = []
-    if name := os.getenv("MY_NAME"):
-        parts.append(f"Name: {name}")
-    if skills := os.getenv("MY_SKILLS"):
-        parts.append(f"Skills: {skills}")
-    if industry := os.getenv("MY_INDUSTRY"):
-        parts.append(f"Industry: {industry}")
-    if projects := os.getenv("MY_CURRENT_PROJECTS"):
-        parts.append(f"Current projects: {projects}")
-    return "\n".join(parts) if parts else "Not specified"
+def chat_stream(messages: list[dict], api_key: str = ""):
+    """
+    Stream a chat response using claude-opus-4-6 with adaptive thinking.
+    Yields text chunks as they arrive.
+    """
+    key = api_key or os.getenv("ANTHROPIC_API_KEY", "")
+    if not key:
+        raise RuntimeError("ANTHROPIC_API_KEY not configured")
+
+    client = anthropic.Anthropic(api_key=key)
+
+    with client.messages.stream(
+        model="claude-opus-4-6",
+        max_tokens=4096,
+        thinking={"type": "adaptive"},
+        system=SYSTEM_PROMPT,
+        messages=messages,
+    ) as stream:
+        for event in stream:
+            if event.type == "content_block_delta":
+                if event.delta.type == "text_delta":
+                    yield event.delta.text
 
 
-def _contact_to_text(contact: dict) -> str:
-    lines = [
-        f"Name: {contact['name']}",
-        f"Date met: {contact['date_met']}",
-    ]
-    if contact.get("where_met"):
-        lines.append(f"Where met: {contact['where_met']}")
-    if contact.get("profession"):
-        lines.append(f"Profession: {contact['profession']}")
-    if contact.get("industry"):
-        lines.append(f"Industry: {contact['industry']}")
-    if contact.get("skills"):
-        lines.append(f"Skills: {', '.join(contact['skills'])}")
-    if contact.get("interests"):
-        lines.append(f"Interests: {', '.join(contact['interests'])}")
-    if contact.get("resources"):
-        lines.append(f"Resources/assets: {', '.join(contact['resources'])}")
-    if contact.get("problems"):
-        lines.append(f"Problems/pain points: {', '.join(contact['problems'])}")
-    if contact.get("notes"):
-        lines.append(f"Notes: {contact['notes']}")
-    return "\n".join(lines)
+def get_recommendations(
+    messages: list[dict],
+    search_results: dict,
+    stores: list[dict],
+    api_key: str = "",
+) -> str:
+    """
+    Generate structured product recommendations after search results are available.
+    Returns the full assistant response text.
+    """
+    key = api_key or os.getenv("ANTHROPIC_API_KEY", "")
+    if not key:
+        raise RuntimeError("ANTHROPIC_API_KEY not configured")
 
+    client = anthropic.Anthropic(api_key=key)
 
-def analyze_contact(contact: dict, extra_context: str = "") -> str:
-    """Ask Claude to map out entrepreneurial opportunities with this contact."""
-    my_profile = _build_my_profile()
-    contact_text = _contact_to_text(contact)
-
-    context_block = f"\nAdditional context: {extra_context}" if extra_context else ""
-
-    prompt = f"""You are an entrepreneurial opportunity mapper. Given information about someone I recently met and my own profile, identify concrete ways we could collaborate, create value together, or help each other.
-
-MY PROFILE:
-{my_profile}
-
-PERSON I MET:
-{contact_text}{context_block}
-
-Provide a structured analysis covering:
-
-1. **Entrepreneurial Opportunities** — Specific business ideas or ventures we could build together, referencing their skills/resources and mine.
-
-2. **Immediate Ways to Help Each Other** — Quick wins: introductions, advice, resources, or collaborations that could happen within the next 30 days.
-
-3. **Their Problems I Could Solve** — Based on the pain points they mentioned, how could I (or something I'm building) address them?
-
-4. **Skills/Resources I Should Leverage** — What they bring that would be uniquely valuable to me.
-
-5. **Suggested Follow-Up** — Specific, actionable next steps with this person (what to say, what to propose, what to ask).
-
-6. **Longer-Term Potential** — Bigger picture: strategic partnerships, investor angles, talent, or market access they could represent.
-
-Be specific and practical. Avoid generic advice. If information is limited, flag what data would sharpen the analysis."""
-
-    message = get_client().messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=1500,
-        messages=[{"role": "user", "content": prompt}],
+    # Build store context
+    store_list = "\n".join(
+        f"- {s['name']}: {s['url']} (search: {s.get('search_url_template', '')})"
+        for s in stores if s.get("active")
     )
-    return message.content[0].text
 
+    # Build search context
+    yt_results = search_results.get("youtube", [])
+    g_results = search_results.get("google", [])
 
-def analyze_network(contacts: list[dict], goal: str = "") -> str:
-    """Analyze the full network for patterns and cross-connection opportunities."""
-    if not contacts:
-        return "No contacts to analyze yet."
+    search_context = ""
+    if yt_results:
+        search_context += "\n\n## YouTube Review Videos Found:\n"
+        for r in yt_results[:8]:
+            search_context += f"- [{r.get('title', '')}] by {r.get('channel', '')} — {r.get('url', '')}\n"
+            if r.get("description"):
+                search_context += f"  Summary: {r['description'][:200]}\n"
 
-    contact_summaries = []
-    for c in contacts:
-        summary = f"- {c['name']} ({c.get('profession', 'unknown')}): skills={c.get('skills', [])}, industry={c.get('industry', '')}"
-        contact_summaries.append(summary)
+    if g_results:
+        search_context += "\n\n## Tech Review Articles Found:\n"
+        for r in g_results[:8]:
+            search_context += f"- [{r.get('title', '')}] from {r.get('source', '')} — {r.get('url', '')}\n"
+            if r.get("snippet"):
+                search_context += f"  Excerpt: {r['snippet'][:200]}\n"
 
-    contacts_text = "\n".join(contact_summaries)
-    my_profile = _build_my_profile()
-    goal_block = f"\nMy current goal: {goal}" if goal else ""
-
-    prompt = f"""You are an entrepreneurial network analyst. Review this person's contact network and surface patterns, synergies, and hidden opportunities.
-
-MY PROFILE:
-{my_profile}{goal_block}
-
-MY NETWORK ({len(contacts)} contacts):
-{contacts_text}
-
-Provide:
-
-1. **Cross-Connection Opportunities** — Pairs or groups of contacts who should meet each other (and why).
-
-2. **Emerging Themes** — Patterns in skills, industries, or problems that suggest a market opportunity.
-
-3. **Team Assembly** — If I wanted to start something new, which contacts form the best founding team or advisory board?
-
-4. **Network Gaps** — What types of people am I missing that would accelerate my goals?
-
-5. **Top 3 Highest-Leverage Actions** — The single best moves I can make with this network right now.
-
-Be specific and reference contacts by name."""
-
-    message = get_client().messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=1500,
-        messages=[{"role": "user", "content": prompt}],
+    inject_message = (
+        "I've gathered review data from trusted tech channels. "
+        "Please analyze this and provide your top product recommendations.\n"
+        f"{search_context if search_context else 'Note: No external search results available — use your training knowledge.'}\n\n"
+        f"## Available Purchase Stores:\n{store_list}\n\n"
+        "Please provide your recommendations now in the RECOMMENDATIONS_JSON format."
     )
-    return message.content[0].text
+
+    full_messages = messages + [{"role": "user", "content": inject_message}]
+
+    with client.messages.stream(
+        model="claude-opus-4-6",
+        max_tokens=8192,
+        thinking={"type": "adaptive"},
+        system=SYSTEM_PROMPT,
+        messages=full_messages,
+    ) as stream:
+        return stream.get_final_message().content[-1].text
+
+
+def parse_requirements(text: str) -> dict | None:
+    """Extract REQUIREMENTS_READY JSON from Claude's response."""
+    marker = "REQUIREMENTS_READY:"
+    idx = text.find(marker)
+    if idx == -1:
+        return None
+    json_start = text.find("{", idx)
+    json_end = text.rfind("}", json_start) + 1
+    if json_start == -1 or json_end == 0:
+        return None
+    try:
+        return json.loads(text[json_start:json_end])
+    except json.JSONDecodeError:
+        return None
+
+
+def parse_recommendations(text: str) -> dict | None:
+    """Extract RECOMMENDATIONS_JSON from Claude's response."""
+    marker = "RECOMMENDATIONS_JSON:"
+    idx = text.find(marker)
+    if idx == -1:
+        return None
+    json_start = text.find("{", idx)
+    json_end = text.rfind("}", json_start) + 1
+    if json_start == -1 or json_end == 0:
+        return None
+    try:
+        return json.loads(text[json_start:json_end])
+    except json.JSONDecodeError:
+        return None
